@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
-import bomberman.database.DB;
+import database.DB;
 import java.util.ArrayList;
 import java.util.Date;
 
