@@ -1,4 +1,4 @@
-package Bomberman;
+package model;
 
 import java.awt.Graphics;
 import java.awt.Image;

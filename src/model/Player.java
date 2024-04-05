@@ -1,7 +1,9 @@
-package Bomberman;
+package model;
 
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import javax.swing.ImageIcon;
 
 class Player extends ActiveObject{
     
@@ -14,13 +16,24 @@ class Player extends ActiveObject{
     
     
     public String tends_to_move_direction = "x";
-    public double tend_value =0; 
+    public double tend_value =0;
+    
+    
+    
+    public boolean canDropBomb = true;
+    
+    public Bomb bomb;
+    //public ArrayList<Bomb> playersBombs = new ArrayList();
     
     // METHODS
    
     
     public Player(int x, int y, int w, int h, Image image) {
         super(x, y, w, h, image);
+
+        Image img = new ImageIcon("src/media/Bomb.png").getImage();
+        bomb = new Bomb(5, 5, 30, 30, img);
+     
     }
     //GETTERS AND SETTERS
     public void set_x_speed(double speed_to_set) { 
@@ -85,6 +98,16 @@ class Player extends ActiveObject{
             Rectangle hostile_obj = new Rectangle(hostileObject._x, hostileObject._y, hostileObject._width, hostileObject._height);        
             return player.intersects(hostile_obj);
         }
+    }
+    
+    
+    public boolean canDropbomb(){
+        return canDropBomb;
+        
+    }
+
+    public void DropBomb() {
+        canDropBomb = false;
     }
     
 }

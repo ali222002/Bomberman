@@ -1,4 +1,4 @@
-package Bomberman;
+package model;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -44,7 +44,6 @@ class Level {
                     walls.add(new Wall(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image));
                     }
                      if(index == 2){
-                         System.out.println("xexe");
                         Image image = new ImageIcon("src/media/box.png").getImage();
                         boxes.add(new Box(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image));
                     }

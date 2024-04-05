@@ -1,4 +1,4 @@
-package Bomberman;
+package model;
 
 public class Bomberman {
 

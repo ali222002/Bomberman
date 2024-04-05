@@ -1,5 +1,6 @@
-package Bomberman;
+package model;
 
+import view.UI;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -16,11 +17,19 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import bomberman.database.DB;
+import java.util.ArrayList;
+import java.util.Date;
 
-class Engine extends JPanel{
+public class Engine extends JPanel{
+    
+
+    
+    private UI Menu;
     //ATTRIBUTES   
         //FPS
-    private int fps = 144 ; 
+    private int fps = 144;
+    private int tempcnt = 0;
+    private int temp2= 0;
     private int r_movement = 1;
         //BOOLEAN IF GAME IS PAUSED
     private boolean game_paused = false;
@@ -33,6 +42,15 @@ class Engine extends JPanel{
     private Timer _timer;
     
     private Player _player;
+    //private Bomb _bomb;
+    private int bombcnt = 0;
+    
+    
+    
+    
+    private ArrayList<Bomb> DroppedBombs = new ArrayList();
+    
+    private boolean spaceButtonPressed;
     
     private Monster _monster;
     
@@ -114,6 +132,33 @@ class Engine extends JPanel{
             }
         });
         
+        
+        
+        this.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "space");
+        this.getActionMap().put("space", new AbstractAction() {
+        
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+                
+                if(_player.canDropbomb()){
+                    
+                    _player.bomb.set_X(_player.get_X());
+                    _player.bomb.set_Y(_player.get_Y());
+                    
+                    spaceButtonPressed = true; 
+                    
+                    DroppedBombs.add(_player.bomb);
+            //System.out.println(DroppedBombs.get(0).droppedTime);
+                    
+                    _player.DropBomb();
+                    temp2 = tempcnt;
+                    
+                }else{
+                    System.out.println("You Ran out of BOMBS");
+                }
+                
+            }
+        });
         restart_game();
         
         //ANIMATION
@@ -137,7 +182,7 @@ class Engine extends JPanel{
    
         
     }
-
+    
     public Monster generate_Monster(Level currentLevel) {
         Random r = new Random();
         boolean isfound = false;
@@ -178,13 +223,19 @@ class Engine extends JPanel{
     
     @Override
     protected void paintComponent(Graphics grphcs) {
-        super.paintComponent(grphcs);
-        grphcs.drawImage(bg, 0, 0, 800, 800, null);
-        _level.placeWalls(grphcs);
-        _level.placeBoxes(grphcs);
-        _player.drawObject(grphcs);
-        _monster.drawObject(grphcs);
-
+        
+            super.paintComponent(grphcs);
+            grphcs.drawImage(bg, 0, 0, 800, 800, null);
+            _level.placeWalls(grphcs);
+            _level.placeBoxes(grphcs);
+            _player.drawObject(grphcs);
+            _monster.drawObject(grphcs);
+            for(int i = 0; i< DroppedBombs.size(); i++){
+                DroppedBombs.get(i).drawObject(grphcs);
+            }
+        
+        
+    
     }
     
     class FrameUpdate implements ActionListener {
@@ -198,6 +249,8 @@ class Engine extends JPanel{
         @Override       
         public void actionPerformed(ActionEvent ae) {
             if (!game_paused) {
+                tempcnt++;
+                //System.out.println(tempcnt);
                 _monster.move();
                 if (_monster.did_hit(_player)) {
                    String user_name = JOptionPane.showInputDialog("MONSTER KILLED YOU!!!! " + (point) + " POINTS EARNED\n      Please give your name:","");
@@ -232,12 +285,27 @@ class Engine extends JPanel{
                     _player.set_x_speed(0);
                     _player.set_y_speed(0);
                 }
+                //System.out.println("on hand" + _player.playersBombs.size());
+                //System.out.println("dropped " + DroppedBombs.size());
+                
+                
+                    //System.out.println("imhere");
+                    for(int i = 0; i < DroppedBombs.size(); i++){
 
+                        //System.out.println(i);
+                        if (tempcnt- temp2 == 180 && spaceButtonPressed) {
+                            spaceButtonPressed = false;
+                            //System.out.println("AY BLE");
+                            _player.canDropBomb = true;
+                            DroppedBombs.remove(0);
+                        }
+                    }
+                
                 _player.move();
             }
 
             repaint();
         }
     
-     }
-}
+    }     
+ }
