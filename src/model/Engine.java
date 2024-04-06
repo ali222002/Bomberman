@@ -192,7 +192,7 @@ public class Engine extends JPanel{
             boolean tmp = true;
             boolean tmp2 = true;
             for (Wall wall : _level.walls) {
-
+                System.out.println("Test");
                 Rectangle rect = new Rectangle(x, y, 40, 40);
                 Rectangle otherRect = new Rectangle(wall._x, wall._y, wall._width, wall._height);
                 if (rect.intersects(otherRect)) {
