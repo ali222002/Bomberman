@@ -20,6 +20,12 @@ import database.DB;
 import java.util.ArrayList;
 import java.util.Date;
 
+// q: how can I drop bomb in the ground cell that the player is on? not on the player itself
+// a: I can create a method that checks if the player is on a ground cell, if it is, then I can drop the bomb on that cell
+// q: how can I check if the player is on a ground cell?
+// a: I can create a method that checks if the player is on a ground cell
+
+
 public class Engine extends JPanel{
     
 
@@ -41,12 +47,15 @@ public class Engine extends JPanel{
     private Level _level;
     private Timer _timer;
     
-    private Player _player;
+    
     //private Bomb _bomb;
     private int bombcnt = 0;
     
     
-    
+
+    private ArrayList<Player> players = new ArrayList();
+    private ArrayList<Monster> monsters = new ArrayList();
+    private int monster_count = 7;
     
     private ArrayList<Bomb> DroppedBombs = new ArrayList();
     
@@ -54,16 +63,22 @@ public class Engine extends JPanel{
     
     private Monster _monster;
     
-    public Engine()
-    {
+    public Engine(int player_count, int round_count)
+    {   
         super();
-        bg = new ImageIcon("src/media/bg.png").getImage();//setting the backgroung picture to the game
+        for(int i = 0; i < player_count; i++){
+            Image runner_img = new ImageIcon("src/media/player1.png").getImage();
+            Player _player = new Player(40, 680, 33, 33, runner_img);
+            players.add(_player);
+        }
+
+        //bg = new ImageIcon("src/media/bg.png").getImage();//setting the backgroung picture to the game
         //MOVE LEFT
         this.getInputMap().put(KeyStroke.getKeyStroke("pressed A"), "pressed a");
         this.getActionMap().put("pressed a", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_x_speed(-r_movement);
+                players.get(0).set_x_speed(-r_movement);
             }
         });
 
@@ -71,7 +86,7 @@ public class Engine extends JPanel{
         this.getActionMap().put("released a", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_x_speed(0);
+                players.get(0).set_x_speed(0);
             }
         });
        
@@ -80,7 +95,7 @@ public class Engine extends JPanel{
         this.getActionMap().put("pressed d", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_x_speed(+r_movement);
+                players.get(0).set_x_speed(+r_movement);
             }        
         });
 
@@ -88,7 +103,7 @@ public class Engine extends JPanel{
         this.getActionMap().put("released d", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_x_speed(0);
+                players.get(0).set_x_speed(0);
             }
         });
         //MOVE DOWN
@@ -96,7 +111,7 @@ public class Engine extends JPanel{
         this.getActionMap().put("pressed s", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_y_speed(r_movement);
+                players.get(0).set_y_speed(r_movement);
             }
         });
 
@@ -104,7 +119,7 @@ public class Engine extends JPanel{
         this.getActionMap().put("released s", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_y_speed(0);
+                players.get(0).set_y_speed(0);
             }
         });
         //MOVE UP
@@ -112,7 +127,7 @@ public class Engine extends JPanel{
         this.getActionMap().put("pressed w", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_y_speed(-r_movement);
+                players.get(0).set_y_speed(-r_movement);
             }
         });
 
@@ -120,7 +135,7 @@ public class Engine extends JPanel{
         this.getActionMap().put("released w", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                _player.set_y_speed(0);
+                players.get(0).set_y_speed(0);
             }
         });
         //PAUSE
@@ -140,30 +155,32 @@ public class Engine extends JPanel{
         @Override
         public void actionPerformed(ActionEvent ae) {
                 
-                if(_player.canDropbomb()){
+            for(int i = 0; i < players.size(); i++){
+                if(players.get(i).canDropbomb()){
                     
-                    _player.bomb.set_X(_player.get_X());
-                    _player.bomb.set_Y(_player.get_Y());
+                    players.get(i).bomb.set_X(players.get(i).get_X());
+                    players.get(i).bomb.set_Y(players.get(i).get_Y());
                     
                     spaceButtonPressed = true; 
                     
-                    DroppedBombs.add(_player.bomb);
+                    DroppedBombs.add(players.get(i).bomb);
             //System.out.println(DroppedBombs.get(0).droppedTime);
                     
-                    _player.DropBomb();
+                    players.get(i).DropBomb();
                     temp2 = tempcnt;
                     
                 }else{
                     System.out.println("You Ran out of BOMBS");
                 }
-                
+            }
             }
         });
         restart_game();
         
         //ANIMATION
-        _timer = new Timer(1000 / fps, new FrameUpdate(this));
+        _timer = new Timer(16, new FrameUpdate(this));
         _timer.start();
+    
         
         
     }
@@ -175,15 +192,12 @@ public class Engine extends JPanel{
             Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         
-        Image runner_img = new ImageIcon("src/media/player1.png").getImage();
-        _player = new Player(50, 650, 33, 33, runner_img);
-        
-        generate_Monster(_level);
-   
-        
+        for(int i = 0; i < monster_count; i++){
+            generate_Monsters(_level);
+        }
     }
     
-    public Monster generate_Monster(Level currentLevel) {
+    public void generate_Monsters(Level currentLevel) {
         Random r = new Random();
         boolean isfound = false;
         while (!isfound) {
@@ -212,30 +226,36 @@ public class Engine extends JPanel{
             if(tmp && tmp2)
             {
                 Image dragonImage = new ImageIcon("src/media/dragon.png").getImage();
-                _monster = new Monster(x,y,40, 40,dragonImage);
+                Monster _monster = new Monster(x,y,40, 40,dragonImage);
+
+                monsters.add(_monster);
                 isfound = true;
-                return _monster;
             }
             
         }
-        return null;
     }
     
     @Override
     protected void paintComponent(Graphics grphcs) {
         
             super.paintComponent(grphcs);
-            grphcs.drawImage(bg, 0, 0, 800, 800, null);
+            //grphcs.drawImage(bg, 0, 0, 800, 800, null);
+            _level.placeGrounds(grphcs);
             _level.placeWalls(grphcs);
+            
             _level.placeBoxes(grphcs);
-            _player.drawObject(grphcs);
-            _monster.drawObject(grphcs);
+
+            for(int i = 0; i < players.size(); i++){
+                players.get(i).drawObject(grphcs);
+            }
+            
+            for(int i = 0; i < monsters.size(); i++){
+                monsters.get(i).drawObject(grphcs);
+            }
+
             for(int i = 0; i< DroppedBombs.size(); i++){
                 DroppedBombs.get(i).drawObject(grphcs);
             }
-        
-        
-    
     }
     
     class FrameUpdate implements ActionListener {
@@ -251,57 +271,64 @@ public class Engine extends JPanel{
             if (!game_paused) {
                 tempcnt++;
                 //System.out.println(tempcnt);
-                _monster.move();
-                if (_monster.did_hit(_player)) {
-                   String user_name = JOptionPane.showInputDialog("MONSTER KILLED YOU!!!! " + (point) + " POINTS EARNED\n      Please give your name:","");
-                    if(user_name != null){
-                    try{
-                           DB db = new DB();
-                            db.insertScore(user_name,point);
-                            }catch (SQLException ex) {
-                                Logger.getLogger(DB.class.getName());
-                             }
-                            point = 0;
-                            id_level = 1;
-                            restart_game();
-                }
-                }
-                if(_player.did_win())
-                {
-                    point = point + 1;
-                    JOptionPane.showMessageDialog(panel, "LEVEL PASSED!, YOU HAVE " + point + " points","GOOD JOB", JOptionPane.PLAIN_MESSAGE);
+                for(int q = 0; q < monsters.size(); q++){
                     
-                    if(id_level <= 9) id_level =  id_level + 1;
-                    else id_level = 1;
-                    
-                    restart_game();
+                
+                monsters.get(q).move();
+                for(int i = 0; i < players.size(); i++){
+                    if (monsters.get(q).did_hit(players.get(i))) {
+                        String user_name = JOptionPane.showInputDialog("MONSTER KILLED YOU!!!! " + (point) + " POINTS EARNED\n      Please give your name:","");
+                         if(user_name != null){
+                         try{
+                                DB db = new DB();
+                                 db.insertScore(user_name,point);
+                                 }catch (SQLException ex) {
+                                     Logger.getLogger(DB.class.getName());
+                                  }
+                                 point = 0;
+                                 id_level = 1;
+                                 restart_game();
+                     }
+                     }
+                     if(players.get(i).did_win())
+                     {
+                         point = point + 1;
+                         JOptionPane.showMessageDialog(panel, "LEVEL PASSED!, YOU HAVE " + point + " points","GOOD JOB", JOptionPane.PLAIN_MESSAGE);
+                         
+                         if(id_level <= 9) id_level =  id_level + 1;
+                         else id_level = 1;
+                         
+                         restart_game();
+                     }
+     
+     
+                     
+                     if (_level.did_hit(monsters.get(q))) {
+                         monsters.get(q).ChangeDirection(_level);
+                     }
+     
+                     if (_level.did_hit(players.get(i))) {
+                         players.get(i).set_x_speed(0);
+                         players.get(i).set_y_speed(0);
+                     }
+                     
+                     for(int j = 0; j < DroppedBombs.size(); j++){
+                         if (tempcnt- temp2 == 90 && spaceButtonPressed) {
+                             spaceButtonPressed = false;
+                             players.get(j).canDropBomb = true;
+     
+                             DroppedBombs.get(0).explode(_level.boxes, players, monsters);
+                             DroppedBombs.remove(0);
+     
+                         }
+                     }
+                         
+                     
+     
+                     players.get(i).move();
                 }
+            }
                 
-                if (_level.did_hit(_monster)) {
-                    _monster.ChangeDirection(_level);
-                }
-
-                if (_level.did_hit(_player)) {
-                    _player.set_x_speed(0);
-                    _player.set_y_speed(0);
-                }
-                //System.out.println("on hand" + _player.playersBombs.size());
-                //System.out.println("dropped " + DroppedBombs.size());
-                
-                
-                    //System.out.println("imhere");
-                    for(int i = 0; i < DroppedBombs.size(); i++){
-
-                        //System.out.println(i);
-                        if (tempcnt- temp2 == 180 && spaceButtonPressed) {
-                            spaceButtonPressed = false;
-                            //System.out.println("AY BLE");
-                            _player.canDropBomb = true;
-                            DroppedBombs.remove(0);
-                        }
-                    }
-                
-                _player.move();
             }
 
             repaint();

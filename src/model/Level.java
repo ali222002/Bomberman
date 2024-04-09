@@ -16,7 +16,7 @@ class Level {
     
     public ArrayList<Wall> walls;
     public ArrayList<Box> boxes;
-   
+    public ArrayList<Ground> grounds;
     
     //CONSTRUCTOR
     public Level(String levelPath) throws IOException {
@@ -31,6 +31,7 @@ class Level {
         br = new BufferedReader(new FileReader(levelPath));
         walls = new ArrayList<>();
         boxes = new ArrayList<>();
+        grounds = new ArrayList<>();
         
         /////////////////////////// placing walls according to a txt file//////////////////////
         while ((line = br.readLine()) != null) {
@@ -38,15 +39,21 @@ class Level {
             for (char i : line.toCharArray()) {
                 if (Character.isDigit(i)) {
                     int index = Character.getNumericValue(i);
+
+                    Image image1 = new ImageIcon("src/media/ground.png").getImage();
+                    grounds.add(new Ground(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image1));
+
                     if(index == 1){
                     Image image = new ImageIcon("src/media/wall.png").getImage();
                     
                     walls.add(new Wall(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image));
                     }
-                     if(index == 2){
+                    if(index == 2){
                         Image image = new ImageIcon("src/media/box.png").getImage();
                         boxes.add(new Box(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image));
                     }
+                    
+                    
                     
                 }
                 x_cnt++;
@@ -54,6 +61,12 @@ class Level {
             y_cnt++;
         }
         
+    }
+    //DISPLAY GROUNDS ON MAP
+    public void placeGrounds(Graphics g) {
+        for (Ground ground : grounds) {
+            ground.drawObject(g);
+        }
     }
     //DISPLAY WALLS ON MAP
     public void placeWalls(Graphics g) {
@@ -104,6 +117,20 @@ class Level {
             }
         }
         if (whits != null || bhits != null) return true; 
+        else return false;
+    }
+
+    public boolean did_hit(Bomb bomb) {
+       
+       
+        Box bhits = null;
+        for (Box box : boxes){
+            if (bomb.did_hit(box)){
+                bhits = box;
+                break;
+            }
+        }
+        if (bhits != null) return true; 
         else return false;
     }
     
