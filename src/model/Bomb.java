@@ -9,15 +9,6 @@ import java.util.Iterator;
 
 import javax.swing.Timer;
 
-// q: I need to implement functionality for the bomb to destroy any nearby box, player, or monster but not walls, how can I do that?
-// a: I can create a method that checks if the bomb has exploded, if it has, then I can check if the bomb has hit any of the objects that I want to destroy
-// q: How can I check if the bomb has hit any of the objects that I want to destroy?
-// a: I can create a method that checks if the bomb has hit any of the objects that I want to destroy
-
-
-
-
-
 public class Bomb extends ActiveObject {
     /*
         
@@ -42,25 +33,14 @@ public class Bomb extends ActiveObject {
         if(droppedTime != null){
             Date currentTime = new Date();
             System.out.println(droppedTime);
-//            long elapsedTime = currentTime.getTime() - droppedTime.getTime();
 
-            // If more than 3 seconds have passed, the bomb explodes
-//            if (elapsedTime >= 3000) {
-//                explode();
-//                hasExploded = true;
-//                return true;
-//            }
-//                return false;
             }
-        // Calculate the current time and the elapsed time since creation
+
         return false;
     }
     
     public void explode(ArrayList<Box> boxes, ArrayList<Player> players, ArrayList<Monster> monsters){
         Rectangle explosionRect = new Rectangle(this.get_X() - explosionRadius, this.get_Y() - explosionRadius, this.explosionRadius * 2, this.explosionRadius * 2);
-
-        // Check for collision with boxes
-        //Rectangle explosionRect = new Rectangle(this.x - explosionRadius, this.y - explosionRadius, this.explosionRadius * 2, this.explosionRadius * 2);
 
         // Check for collision with boxes
         for (Iterator<Box> iterator = boxes.iterator(); iterator.hasNext();) {

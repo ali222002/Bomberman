@@ -20,11 +20,6 @@ import database.DB;
 import java.util.ArrayList;
 import java.util.Date;
 
-// q: how can I drop bomb in the ground cell that the player is on? not on the player itself
-// a: I can create a method that checks if the player is on a ground cell, if it is, then I can drop the bomb on that cell
-// q: how can I check if the player is on a ground cell?
-// a: I can create a method that checks if the player is on a ground cell
-
 
 public class Engine extends JPanel{
     
