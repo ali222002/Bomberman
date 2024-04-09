@@ -27,7 +27,7 @@ class StartGame {
         frame = new JFrame("BOMBERMAN");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        Engine map = new Engine();
+        Engine map = new Engine(3, 2);
         frame.getContentPane().add(map);
         
         
