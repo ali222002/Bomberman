@@ -107,7 +107,30 @@ class Player extends ActiveObject{
     }
 
     public void DropBomb() {
+     
         canDropBomb = false;
+    }
+
+    public Ground whereAmI(Level _level) {
+
+        for (Ground ground : _level.grounds) {
+
+            boolean isGroundFree = false;
+
+            for (int i = 0; i < _level.boxes.size(); i++) {
+                if (ground.get_X() == _level.boxes.get(i).get_X() && ground.get_Y() == _level.boxes.get(i).get_Y()) {
+                    isGroundFree = false;
+                    break;
+                } else {
+                    isGroundFree = true;
+                }
+            }
+
+            if (this.did_hit(ground) && isGroundFree) {
+               return ground;
+            }
+        }
+        return null;
     }
     
 }

@@ -153,13 +153,14 @@ public class Engine extends JPanel{
             for(int i = 0; i < players.size(); i++){
                 if(players.get(i).canDropbomb()){
                     
-                    players.get(i).bomb.set_X(players.get(i).get_X());
-                    players.get(i).bomb.set_Y(players.get(i).get_Y());
-                    
+                    Ground gr = players.get(i).whereAmI(_level);
+                    players.get(i).bomb.set_X(gr.get_X());
+                    players.get(i).bomb.set_Y(gr.get_Y());
+                    //System.out.println(players.get(i).get_X() + " " + players.get(i).get_Y());
                     spaceButtonPressed = true; 
                     
                     DroppedBombs.add(players.get(i).bomb);
-            //System.out.println(DroppedBombs.get(0).droppedTime);
+                    //System.out.println(DroppedBombs.get(0).droppedTime);
                     
                     players.get(i).DropBomb();
                     temp2 = tempcnt;
