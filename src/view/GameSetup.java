@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -51,7 +53,7 @@ class GameSetup {
         title_mapNameLabel.setForeground(Color.black);
         title_mapNameLabel.setFont(titleFont);
         
-        String[] maps = {"Map 1", "Map 2", "Map 3"};
+        String[] maps = {"1", "2", "3"};
         mapSelector = new JComboBox<>(maps);
         mapSelector.setFont(normalFont);
         mapSelectorPanel = new JPanel();
@@ -67,7 +69,7 @@ class GameSetup {
         title_playerNameLabel.setForeground(Color.black);
         title_playerNameLabel.setFont(titleFont);
         
-        Integer[] playerNumbers = {1, 2, 3, 4};
+        Integer[] playerNumbers = {1, 2, 3};
         playerSelector = new JComboBox<>(playerNumbers);
         playerSelector.setFont(normalFont);
         playerSelectorPanel = new JPanel();
@@ -100,7 +102,15 @@ class GameSetup {
         playButton.setFocusPainted(false);
         playButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                StartGame startgame = new StartGame();
+                int playerCount = (Integer) playerSelector.getSelectedItem();
+                int roundCount = (Integer) roundsSelector.getSelectedItem();
+                String m = mapSelector.getSelectedItem().toString();
+                try {
+                    StartGame startgame = new StartGame(playerCount, roundCount, Integer.parseInt(m));
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
                 frame.dispose();
                 
             }
