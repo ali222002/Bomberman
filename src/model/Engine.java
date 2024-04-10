@@ -50,7 +50,7 @@ public class Engine extends JPanel{
 
     private ArrayList<Player> players = new ArrayList();
     private ArrayList<Monster> monsters = new ArrayList();
-    private int monster_count = 7;
+    private int monster_count = 1;
     
     private ArrayList<Bomb> DroppedBombs = new ArrayList();
     
@@ -58,81 +58,48 @@ public class Engine extends JPanel{
     
     private Monster _monster;
     
-    public Engine(int player_count, int round_count)
+    public Engine(int player_count, int round_count, int id_level) throws IOException
     {   
         super();
-        for(int i = 0; i < player_count; i++){
-            Image runner_img = new ImageIcon("src/media/player1.png").getImage();
-            Player _player = new Player(40, 680, 33, 33, runner_img);
-            players.add(_player);
+
+        _level = new Level("src/levels/level" + id_level + ".txt");
+
+        for(int i = 0; i < monster_count; i++){
+            generate_Monsters(_level);
         }
 
-        //bg = new ImageIcon("src/media/bg.png").getImage();//setting the backgroung picture to the game
-        //MOVE LEFT
-        this.getInputMap().put(KeyStroke.getKeyStroke("pressed A"), "pressed a");
-        this.getActionMap().put("pressed a", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_x_speed(-r_movement);
-            }
-        });
 
-        this.getInputMap().put(KeyStroke.getKeyStroke("released A"), "released a");
-        this.getActionMap().put("released a", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_x_speed(0);
-            }
-        });
-       
-        //MOVE RIGHT
-        this.getInputMap().put(KeyStroke.getKeyStroke("pressed D"), "pressed d");
-        this.getActionMap().put("pressed d", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_x_speed(+r_movement);
-            }        
-        });
+        if (player_count == 1) {
+            Image runner_img = new ImageIcon("src/media/player1.png").getImage();
+            Player _player = new Player(40, 40, 33, 33, runner_img);
+            players.add(_player);
+            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
+        }
+        else if (player_count == 2) {
+            Image runner_img = new ImageIcon("src/media/player1.png").getImage();
+            Player _player = new Player(40, 40, 33, 33, runner_img);
+            players.add(_player);
+            runner_img = new ImageIcon("src/media/player2.png").getImage();
+            _player = new Player(40, 680, 33, 33, runner_img);
+            players.add(_player);
 
-        this.getInputMap().put(KeyStroke.getKeyStroke("released D"), "released d");
-        this.getActionMap().put("released d", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_x_speed(0);
-            }
-        });
-        //MOVE DOWN
-        this.getInputMap().put(KeyStroke.getKeyStroke("pressed S"), "pressed s");
-        this.getActionMap().put("pressed s", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_y_speed(r_movement);
-            }
-        });
-
-        this.getInputMap().put(KeyStroke.getKeyStroke("released S"), "released s");
-        this.getActionMap().put("released s", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_y_speed(0);
-            }
-        });
-        //MOVE UP
-        this.getInputMap().put(KeyStroke.getKeyStroke("pressed W"), "pressed w");
-        this.getActionMap().put("pressed w", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_y_speed(-r_movement);
-            }
-        });
-
-        this.getInputMap().put(KeyStroke.getKeyStroke("released W"), "released w");
-        this.getActionMap().put("released w", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                players.get(0).set_y_speed(0);
-            }
-        });
+            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
+            setControls(players.get(1),"W", "A", "S", "D", " C");
+        }
+        else if (player_count == 3) {
+            Image runner_img = new ImageIcon("src/media/player1.png").getImage();
+            Player _player = new Player(40, 40, 33, 33, runner_img);
+            players.add(_player);
+            runner_img = new ImageIcon("src/media/player2.png").getImage();
+            _player = new Player(40, 680, 33, 33, runner_img);
+            players.add(_player);
+            runner_img = new ImageIcon("src/media/player3.png").getImage();
+            _player = new Player(680, 680, 33, 33, runner_img);
+            players.add(_player);
+            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
+            setControls(players.get(1),"W", "A", "S", "D", " C");
+            setControls(players.get(2),"O", "L", "K", ";", " M");
+        }
         //PAUSE
         this.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "escape");
         this.getActionMap().put("escape", new AbstractAction() {
@@ -143,34 +110,6 @@ public class Engine extends JPanel{
         });
         
         
-        
-        this.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "space");
-        this.getActionMap().put("space", new AbstractAction() {
-        
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-                
-            for(int i = 0; i < players.size(); i++){
-                if(players.get(i).canDropbomb()){
-                    
-                    Ground gr = players.get(i).whereAmI(_level);
-                    players.get(i).bomb.set_X(gr.get_X());
-                    players.get(i).bomb.set_Y(gr.get_Y());
-                    //System.out.println(players.get(i).get_X() + " " + players.get(i).get_Y());
-                    spaceButtonPressed = true; 
-                    
-                    DroppedBombs.add(players.get(i).bomb);
-                    //System.out.println(DroppedBombs.get(0).droppedTime);
-                    
-                    players.get(i).DropBomb();
-                    temp2 = tempcnt;
-                    
-                }else{
-                    System.out.println("You Ran out of BOMBS");
-                }
-            }
-            }
-        });
         restart_game();
         
         //ANIMATION
@@ -179,18 +118,105 @@ public class Engine extends JPanel{
     
         
         
+    } 
+
+    public void setControls(Player player, String up, String down, String left, String right, String bombdrop) {
+        
+        this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + left), "pressed " + left);
+        this.getActionMap().put("pressed " + left, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_x_speed(-r_movement);
+            }
+        });
+
+        this.getInputMap().put(KeyStroke.getKeyStroke("released " + left), "released " + left);
+        this.getActionMap().put("released " + left, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_x_speed(0);
+            }
+        });
+       
+        //MOVE RIGHT
+        this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + right), "pressed " + right);
+        this.getActionMap().put("pressed " + right, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_x_speed(+r_movement);
+            }        
+        });
+
+        this.getInputMap().put(KeyStroke.getKeyStroke("released " + right), "released " + right);
+        this.getActionMap().put("released " + right, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_x_speed(0);
+            }
+        });
+        //MOVE DOWN
+        this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + down), "pressed " + down  );
+        this.getActionMap().put("pressed " + down, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_y_speed(r_movement);
+            }
+        });
+
+        this.getInputMap().put(KeyStroke.getKeyStroke("released " + down), "released " + down);
+        this.getActionMap().put("released " + down, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_y_speed(0);
+            }
+        });
+        this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + up), "pressed " + up);
+        this.getActionMap().put("pressed " + up, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_y_speed(-r_movement);
+            }
+        });
+
+        this.getInputMap().put(KeyStroke.getKeyStroke("released " + up), "released " + up);
+        this.getActionMap().put("released " + up, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                player.set_y_speed(0);
+            }
+        });
+
+        this.getInputMap().put(KeyStroke.getKeyStroke(bombdrop), bombdrop);
+        this.getActionMap().put(bombdrop, new AbstractAction() {
+        
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+                
+                if(player.canDropbomb()){
+                    
+                    Ground gr = player.whereAmI(_level);
+                    player.bomb.set_X(gr.get_X());
+                    player.bomb.set_Y(gr.get_Y());
+                    System.out.println(player.get_X() + " " + player.get_Y());
+                    spaceButtonPressed = true; 
+                    
+                    DroppedBombs.add(player.bomb);
+                    //System.out.println(DroppedBombs.get(0).droppedTime);
+                    
+                    player.DropBomb();
+                    temp2 = tempcnt;
+                    
+                }else{
+                    System.out.println("You Ran out of BOMBS");
+                }
+            
+            }
+        });
+        
     }
     
     public void restart_game(){
-        try {
-            _level = new Level("src/levels/level" + id_level + ".txt");
-        }catch (IOException ex) {
-            Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        
-        for(int i = 0; i < monster_count; i++){
-            generate_Monsters(_level);
-        }
+
     }
     
     public void generate_Monsters(Level currentLevel) {

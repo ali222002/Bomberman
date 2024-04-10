@@ -33,6 +33,8 @@ class Player extends ActiveObject{
 
         Image img = new ImageIcon("src/media/Bomb.png").getImage();
         bomb = new Bomb(5, 5, 30, 30, img);
+
+        
      
     }
     //GETTERS AND SETTERS
@@ -115,18 +117,27 @@ class Player extends ActiveObject{
 
         for (Ground ground : _level.grounds) {
 
-            boolean isGroundFree = false;
-
+            boolean isGroundFreeofB = false;
+            boolean isGroundFreeofW = false;
             for (int i = 0; i < _level.boxes.size(); i++) {
                 if (ground.get_X() == _level.boxes.get(i).get_X() && ground.get_Y() == _level.boxes.get(i).get_Y()) {
-                    isGroundFree = false;
+                    isGroundFreeofB = false;
                     break;
                 } else {
-                    isGroundFree = true;
+                    isGroundFreeofB = true;
+                }
+            }
+            for (int i = 0; i < _level.walls.size(); i++) {
+                if (ground.get_X() == _level.walls.get(i).get_X() && ground.get_Y() == _level.walls.get(i).get_Y()) {
+                    isGroundFreeofW = false;
+                    break;
+                } else {
+                    isGroundFreeofW = true;
                 }
             }
 
-            if (this.did_hit(ground) && isGroundFree) {
+
+            if (this.did_hit(ground) && (isGroundFreeofB && isGroundFreeofW)) {
                return ground;
             }
         }
