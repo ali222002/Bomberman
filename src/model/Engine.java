@@ -17,8 +17,11 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import database.DB;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import javax.imageio.ImageIO;
 
 
 public class Engine extends JPanel{
@@ -53,10 +56,32 @@ public class Engine extends JPanel{
     private int monster_count = 1;
     
     private ArrayList<Bomb> DroppedBombs = new ArrayList();
+    private ArrayList<Explosion> _explosions = new ArrayList();
     
     private boolean spaceButtonPressed;
     
     private Monster _monster;
+    
+    public Image[] loadExplosionFrames() {
+        int numFrames = 8; // Replace with the number of frames in your animation
+        Image[] frames = new Image[numFrames*numFrames];
+        int cnt = 0;
+    for (int j = 0; j < numFrames; j++) {
+        for (int i = 0; i < numFrames; i++) {
+            try {
+                //System.out.println("src/media/explosions/row-" + (j+1) + "-column-" + (i+1) + ".png");
+                frames[cnt] = ImageIO.read(new File("src/media/explosions/row-" + (j+1) + "-column-" + (i+1) + ".png"));
+                cnt++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+        }
+        
+    }
+
+        return frames;
+    }
     
     public Engine(int player_count, int round_count, int id_level) throws IOException
     {   
@@ -197,7 +222,7 @@ public class Engine extends JPanel{
                     Ground gr = player.whereAmI(_level);
                     player.bomb.set_X(gr.get_X());
                     player.bomb.set_Y(gr.get_Y());
-                    System.out.println(player.get_X() + " " + player.get_Y());
+                    //System.out.println(player.get_X() + " " + player.get_Y());
                     spaceButtonPressed = true; 
                     
                     DroppedBombs.add(player.bomb);
@@ -278,6 +303,16 @@ public class Engine extends JPanel{
             for(int i = 0; i< DroppedBombs.size(); i++){
                 DroppedBombs.get(i).drawObject(grphcs);
             }
+
+            Iterator<Explosion> iterator;
+            iterator = _explosions.iterator();
+            while (iterator.hasNext()) {
+                Explosion explosion = iterator.next();
+                explosion.draw(grphcs);
+                if (explosion.isFinished()) {
+                    iterator.remove();
+                }
+            }
     }
     
     class FrameUpdate implements ActionListener {
@@ -338,16 +373,23 @@ public class Engine extends JPanel{
                          if (tempcnt- temp2 == 90 && spaceButtonPressed) {
                              spaceButtonPressed = false;
                              players.get(j).canDropBomb = true;
-     
-                             DroppedBombs.get(0).explode(_level.boxes, players, monsters);
+                             Image[] explosionFrames = loadExplosionFrames();
+                             _explosions.add(new Explosion(DroppedBombs.get(0)._x, DroppedBombs.get(0)._y, 40, 40, explosionFrames));
+                             DroppedBombs.get(0).explode(_level.boxes, players, monsters, _level.walls, _explosions);
                              DroppedBombs.remove(0);
+                             
      
                          }
                      }
                          
                      
-     
-                     players.get(i).move();
+                    if (players != null && !players.isEmpty()) {
+                        players.get(i).move();
+                    }
+                    
+                    for (Explosion explosion : _explosions) {
+                        explosion.update();
+                    }
                 }
             }
                 
