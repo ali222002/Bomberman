@@ -3,9 +3,12 @@ package model;
 
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import javax.imageio.ImageIO;
 
 import javax.swing.Timer;
 
@@ -41,13 +44,73 @@ public class Bomb extends ActiveObject {
         return false;
     }
     
-    public void explode(ArrayList<Box> boxes, ArrayList<Player> players, ArrayList<Monster> monsters){
-        fourdirections = new char[]{'u', 'd', 'l', 'r'};
-        
-    }
-        
-    
+     public Image[] loadExplosionFrames() {
+        int numFrames = 8; // Replace with the number of frames in your animation
+        Image[] frames = new Image[numFrames*numFrames];
+        int cnt = 0;
+    for (int j = 0; j < numFrames; j++) {
+        for (int i = 0; i < numFrames; i++) {
+            try {
+                //System.out.println("src/media/explosions/row-" + (j+1) + "-column-" + (i+1) + ".png");
+                frames[cnt] = ImageIO.read(new File("src/media/explosions/row-" + (j+1) + "-column-" + (i+1) + ".png"));
+                cnt++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+        }
+          }
 
-}
+        return frames;
+    }
     
+   public void explode(ArrayList<Box> boxes, ArrayList<Player> players, ArrayList<Monster> monsters, ArrayList<Wall> walls, ArrayList<Explosion> effects) {
+    int up_x = _x;
+    int up_y = _y - 40;
+    int bottom_x = _x;
+    int bottom_y = _y + 40;
+    int left_x = _x - 40;
+    int left_y = _y;
+    int right_x = _x + 40;
+    int right_y = _y;
+
+    // Remove boxes
+    removeObjectsAt(boxes, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
+
+    // Remove players
+    removeObjectsAt(players, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
+
+    // Remove monsters
+    removeObjectsAt(monsters, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
+
+    // Remove walls
+    //removeObjectsAt(walls, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
+    Image[] frames = loadExplosionFrames();
+    
+    effects.add(new Explosion(up_x, up_y, 40, 40, frames));
+    effects.add(new Explosion(bottom_x, bottom_y, 40, 40, frames));
+    effects.add(new Explosion(left_x, left_y, 40, 40, frames));
+    effects.add(new Explosion(right_x, right_y, 40, 40, frames));
+    }
+
+    private <T extends ActiveObject> void removeObjectsAt(ArrayList<T> objects, int up_x, int up_y, int bottom_x, int bottom_y, int left_x, int left_y, int right_x, int right_y) {
+    Rectangle explosionAreaUp = new Rectangle(up_x, up_y, 40, 40);
+    Rectangle explosionAreaDown = new Rectangle(bottom_x, bottom_y, 40, 40);
+    Rectangle explosionAreaLeft = new Rectangle(left_x, left_y, 40, 40);
+    Rectangle explosionAreaRight = new Rectangle(right_x, right_y, 40, 40);
+
+    Iterator<T> iterator = objects.iterator();
+    while (iterator.hasNext()) {
+        T object = iterator.next();
+        Rectangle objectRect = new Rectangle(object._x, object._y, object._width, object._height);
+
+        if (explosionAreaUp.intersects(objectRect) || explosionAreaDown.intersects(objectRect) || 
+            explosionAreaLeft.intersects(objectRect) || explosionAreaRight.intersects(objectRect)) {
+            iterator.remove();
+        }
+    }
+}
+        
+}
+
 
