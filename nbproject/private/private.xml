@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Interface.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Player.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/database/data_structure.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Box.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/ActiveObject.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/view/StartGame.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/view/GameSetup.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/view/UI.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/view/GameSettings.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Level.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Engine.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Bomberman.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Monster.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/model/Explosion.java</file>
+            <file>file:/C:/Users/imp/Documents/NetBeansProjects/Lightning/src/database/DB.java</file>
+        </group>
+    </open-files>
+</project-private>
