@@ -17,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import database.DB;
+import model.Player.Direction;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,8 +68,8 @@ public class Engine extends JPanel{
             try {
                 String filePath = "src/media/players/player" + c + "/" + string + "/frame-" + (j+1) + ".png";
                 System.out.println(filePath);
-                frames[cnt] = ImageIO.read(new File(filePath));
-                cnt++;
+                frames[j] = ImageIO.read(new File(filePath));
+            
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -120,7 +122,7 @@ public class Engine extends JPanel{
 
         this.id_level = id_level;
         this.player_count = player_count;
-        this.round_count = round_count - 1;
+        this.round_count = round_count;
 
         _level = new Level("src/levels/level" + id_level + ".txt");
 
@@ -135,7 +137,7 @@ public class Engine extends JPanel{
             Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
 
-            Player _player = new Player(40, 40, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
             setControls(players.get(0),"T", "G", "F", "H", " SPACE");
         }
@@ -144,14 +146,14 @@ public class Engine extends JPanel{
             Image[] playerFramesDown = loadPlayerFrames("down", '1');
             Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             
             players.add(_player);
             playerFramesUp = loadPlayerFrames("up", '2');
             playerFramesDown = loadPlayerFrames("down", '2');
             playerFramesLeft = loadPlayerFrames("left",  '2');
             playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
 
             setControls(players.get(0),"T", "G", "F", "H", " SPACE");
@@ -162,21 +164,21 @@ public class Engine extends JPanel{
             Image[] playerFramesDown = loadPlayerFrames("down", '1');
             Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
 
             players.add(_player);
             playerFramesUp = loadPlayerFrames("up", '2');
             playerFramesDown = loadPlayerFrames("down", '2');
             playerFramesLeft = loadPlayerFrames("left",  '2');
             playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
 
             playerFramesUp = loadPlayerFrames("up", '3');
             playerFramesDown = loadPlayerFrames("down", '3');
             playerFramesLeft = loadPlayerFrames("left",  '3');
             playerFramesRight = loadPlayerFrames("right", '3');
-            _player = new Player(680, 680, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(680, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
             setControls(players.get(0),"T", "G", "F", "H", " SPACE");
             setControls(players.get(1),"W", "A", "S", "D", " C");
@@ -195,7 +197,11 @@ public class Engine extends JPanel{
         //restart_game();
         
         //ANIMATION
-        _timer = new Timer(16, new FrameUpdate(this));
+
+        //player animations are so fast that they are not visible
+        //this is why we need to slow them down
+
+        _timer = new Timer(30, new FrameUpdate(this));
         _timer.start();
     
         
@@ -209,6 +215,7 @@ public class Engine extends JPanel{
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_x_speed(-r_movement);
+                player.direction = Direction.LEFT;
             }
         });
 
@@ -226,6 +233,7 @@ public class Engine extends JPanel{
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_x_speed(+r_movement);
+                player.direction = Direction.RIGHT;
             }        
         });
 
@@ -242,6 +250,7 @@ public class Engine extends JPanel{
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_y_speed(r_movement);
+                player.direction = Direction.DOWN;
             }
         });
 
@@ -257,6 +266,7 @@ public class Engine extends JPanel{
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_y_speed(-r_movement);
+                player.direction = Direction.UP;
             }
         });
 
@@ -311,7 +321,7 @@ public class Engine extends JPanel{
             Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
 
-            Player _player = new Player(40, 40, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
             setControls(players.get(0),"T", "G", "F", "H", " SPACE");
         }
@@ -320,14 +330,14 @@ public class Engine extends JPanel{
             Image[] playerFramesDown = loadPlayerFrames("down", '1');
             Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             
             players.add(_player);
             playerFramesUp = loadPlayerFrames("up", '2');
             playerFramesDown = loadPlayerFrames("down", '2');
             playerFramesLeft = loadPlayerFrames("left",  '2');
             playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
 
             setControls(players.get(0),"T", "G", "F", "H", " SPACE");
@@ -338,21 +348,21 @@ public class Engine extends JPanel{
             Image[] playerFramesDown = loadPlayerFrames("down", '1');
             Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
 
             players.add(_player);
             playerFramesUp = loadPlayerFrames("up", '2');
             playerFramesDown = loadPlayerFrames("down", '2');
             playerFramesLeft = loadPlayerFrames("left",  '2');
             playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
 
             playerFramesUp = loadPlayerFrames("up", '3');
             playerFramesDown = loadPlayerFrames("down", '3');
             playerFramesLeft = loadPlayerFrames("left",  '3');
             playerFramesRight = loadPlayerFrames("right", '3');
-            _player = new Player(680, 680, 40, 40, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(680, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
             players.add(_player);
             setControls(players.get(0),"T", "G", "F", "H", " SPACE");
             setControls(players.get(1),"W", "A", "S", "D", " C");
@@ -517,7 +527,11 @@ public class Engine extends JPanel{
                         explosion.update();
                     }
                 }
-            
+
+                if(players.size() <= 1 && round_count == 0){
+                    JOptionPane.showMessageDialog(null, "GAME OVER");
+                    System.exit(0);
+                }
                 
             }
 

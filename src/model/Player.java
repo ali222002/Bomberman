@@ -19,7 +19,7 @@ class Player extends ActiveObject{
     private Image[] animationFramesRight;
     private int currentFrame = 0;
 
-    private Direction direction;
+    public Direction direction;
 
     private double speed_on_x_axis = 0;
     private double speed_on_y_axis = 0;
