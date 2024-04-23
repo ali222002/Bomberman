@@ -32,7 +32,7 @@ class Player extends ActiveObject{
         super(x, y, w, h, image);
 
         Image img = new ImageIcon("src/media/Bomb.png").getImage();
-        bomb = new Bomb(5, 5, 30, 30, img);
+        //bomb = new Bomb(5, 5, 30, 30, img);
 
         
      

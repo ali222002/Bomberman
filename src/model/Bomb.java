@@ -17,18 +17,23 @@ public class Bomb extends ActiveObject {
         
         x, y
     */
+    public long timestamp;
     public boolean hasExploded;
     public Date droppedTime;
     public Ground droppedGround;// if null then bomb is not dropped
 
+    public Player owner;
+
     private int explosionRadius;
     private char[] fourdirections;
 
-    public Bomb(int x, int y, int widt, int height, Image image) {
+    public Bomb(int x, int y, int widt, int height, Image image, Player owner) {
         
         super(x, y, widt, height, image);
         hasExploded = false;
         explosionRadius = 20;
+        this.timestamp = System.currentTimeMillis();
+        this.owner = owner;
     }
     
     
@@ -73,43 +78,46 @@ public class Bomb extends ActiveObject {
     int left_y = _y;
     int right_x = _x + 40;
     int right_y = _y;
-
+    Image[] frames = loadExplosionFrames();
     // Remove boxes
-    removeObjectsAt(boxes, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
+    if(removeObjectsAt(boxes, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y)){
+        effects.add(new Explosion(up_x, up_y, 40, 40, frames));
+    effects.add(new Explosion(bottom_x, bottom_y, 40, 40, frames));
+    effects.add(new Explosion(left_x, left_y, 40, 40, frames));
+    effects.add(new Explosion(right_x, right_y, 40, 40, frames));
+    }
 
     // Remove players
     removeObjectsAt(players, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
 
     // Remove monsters
     removeObjectsAt(monsters, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
-
-    // Remove walls
-    //removeObjectsAt(walls, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
-    Image[] frames = loadExplosionFrames();
     
-    effects.add(new Explosion(up_x, up_y, 40, 40, frames));
-    effects.add(new Explosion(bottom_x, bottom_y, 40, 40, frames));
-    effects.add(new Explosion(left_x, left_y, 40, 40, frames));
-    effects.add(new Explosion(right_x, right_y, 40, 40, frames));
+    
+    
+    
     }
 
-    private <T extends ActiveObject> void removeObjectsAt(ArrayList<T> objects, int up_x, int up_y, int bottom_x, int bottom_y, int left_x, int left_y, int right_x, int right_y) {
-    Rectangle explosionAreaUp = new Rectangle(up_x, up_y, 40, 40);
-    Rectangle explosionAreaDown = new Rectangle(bottom_x, bottom_y, 40, 40);
-    Rectangle explosionAreaLeft = new Rectangle(left_x, left_y, 40, 40);
-    Rectangle explosionAreaRight = new Rectangle(right_x, right_y, 40, 40);
-
-    Iterator<T> iterator = objects.iterator();
-    while (iterator.hasNext()) {
-        T object = iterator.next();
-        Rectangle objectRect = new Rectangle(object._x, object._y, object._width, object._height);
-
-        if (explosionAreaUp.intersects(objectRect) || explosionAreaDown.intersects(objectRect) || 
-            explosionAreaLeft.intersects(objectRect) || explosionAreaRight.intersects(objectRect)) {
-            iterator.remove();
+    private <T extends ActiveObject> boolean removeObjectsAt(ArrayList<T> objects, int up_x, int up_y, int bottom_x, int bottom_y, int left_x, int left_y, int right_x, int right_y) {
+        Rectangle explosionAreaUp = new Rectangle(up_x, up_y, 40, 40);
+        Rectangle explosionAreaDown = new Rectangle(bottom_x, bottom_y, 40, 40);
+        Rectangle explosionAreaLeft = new Rectangle(left_x, left_y, 40, 40);
+        Rectangle explosionAreaRight = new Rectangle(right_x, right_y, 40, 40);
+    
+        boolean objectRemoved = false;
+        Iterator<T> iterator = objects.iterator();
+        while (iterator.hasNext()) {
+            T object = iterator.next();
+            Rectangle objectRect = new Rectangle(object._x, object._y, object._width, object._height);
+    
+            if (explosionAreaUp.intersects(objectRect) || explosionAreaDown.intersects(objectRect) || 
+                explosionAreaLeft.intersects(objectRect) || explosionAreaRight.intersects(objectRect)) {
+                iterator.remove();
+                objectRemoved = true;
+            }
         }
+        return objectRemoved;
     }
-}
         
 }
 
