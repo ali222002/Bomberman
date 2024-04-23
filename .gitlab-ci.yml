@@ -6,7 +6,10 @@ stages:
 
 before_script:
   - apt-get update -yqq
-  - apt-get install -yqq openjdk-11-jdk ant junit4
+  - apt-get install -yqq software-properties-common
+  - add-apt-repository -y ppa:openjdk-r/ppa
+  - apt-get update -yqq
+  - apt-get install -yqq openjdk-17-jdk ant junit4
   
 # Build
 build_game:
