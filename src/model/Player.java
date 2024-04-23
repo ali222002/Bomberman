@@ -6,8 +6,21 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 class Player extends ActiveObject{
+
+    public enum Direction {
+        UP, DOWN, LEFT, RIGHT
+    }
     
     //ATTRIBUTES
+
+    private Image[] animationFramesUp;
+    private Image[] animationFramesDown;
+    private Image[] animationFramesLeft;
+    private Image[] animationFramesRight;
+    private int currentFrame = 0;
+
+    private Direction direction;
+
     private double speed_on_x_axis = 0;
     private double speed_on_y_axis = 0;
     
@@ -28,14 +41,12 @@ class Player extends ActiveObject{
     // METHODS
    
     
-    public Player(int x, int y, int w, int h, Image image) {
-        super(x, y, w, h, image);
-
-        Image img = new ImageIcon("src/media/Bomb.png").getImage();
-        //bomb = new Bomb(5, 5, 30, 30, img);
-
-        
-     
+    public Player(int x, int y, int w, int h, Image[] animationFramesUp, Image[] animationFramesDown, Image[] animationFramesLeft, Image[] animationFramesRight) {
+        super(x, y, w, h, animationFramesRight[0]); // Default image
+        this.animationFramesUp = animationFramesUp;
+        this.animationFramesDown = animationFramesDown;
+        this.animationFramesLeft = animationFramesLeft;
+        this.animationFramesRight = animationFramesRight;
     }
     //GETTERS AND SETTERS
     public void set_x_speed(double speed_to_set) { 
@@ -74,6 +85,17 @@ class Player extends ActiveObject{
     public void move(){
         if(player_moves_on_x == true) move_x();
         else move_y();
+
+        currentFrame = (currentFrame + 1) % animationFramesRight.length; // Default length
+        if (direction == Direction.UP) {
+            _image = animationFramesUp[currentFrame];
+        } else if (direction == Direction.DOWN) {
+            _image = animationFramesDown[currentFrame];
+        } else if (direction == Direction.LEFT) {
+            _image = animationFramesLeft[currentFrame];
+        } else if (direction == Direction.RIGHT) {
+            _image = animationFramesRight[currentFrame];
+        }
     }
   
     public boolean did_win(){

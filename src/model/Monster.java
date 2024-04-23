@@ -4,7 +4,22 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.Random;
 
+
+
 public class Monster extends ActiveObject{
+
+
+    //ANIMATION
+
+        public enum Direction {
+            UP, DOWN, LEFT, RIGHT
+        }
+        private Direction direction = Direction.RIGHT;
+        private Image[] animationFramesUp;
+        private Image[] animationFramesDown;
+        private Image[] animationFramesLeft;
+        private Image[] animationFramesRight;
+        private int currentFrame = 0;
     //ATTRIBUTES
             private double x_speed = 1;
             private double y_speed;
@@ -15,8 +30,12 @@ public class Monster extends ActiveObject{
             public double tend_value = 0; 
     //CONSTRUCTOR
             
-        public Monster(int x, int y, int w, int h,  Image image) {
-            super(x, y, w, h, image);
+        public Monster(int x, int y, int w, int h, Image[] animationFramesUp, Image[] animationFramesDown, Image[] animationFramesLeft, Image[] animationFramesRight) {
+            super(x, y, w, h, animationFramesRight[0]);
+            this.animationFramesUp = animationFramesUp;
+            this.animationFramesDown = animationFramesDown;
+            this.animationFramesLeft = animationFramesLeft;
+            this.animationFramesRight = animationFramesRight;
         }
     // MOVEMENT 
         public void move_x(){
@@ -31,6 +50,17 @@ public class Monster extends ActiveObject{
         public void move(){
             if(if_x == true) move_x();
             else move_y();
+
+            currentFrame = (currentFrame + 1) % animationFramesRight.length; // Default length
+            if (direction == Direction.UP) {
+                _image = animationFramesUp[currentFrame];
+            } else if (direction == Direction.DOWN) {
+                _image = animationFramesDown[currentFrame];
+            } else if (direction == Direction.LEFT) {
+                _image = animationFramesLeft[currentFrame];
+            } else if (direction == Direction.RIGHT) {
+                _image = animationFramesRight[currentFrame];
+            }
         }
     // DIRECTION CHANGERS
         public void ChangeDirection(){
@@ -42,24 +72,28 @@ public class Monster extends ActiveObject{
                     tend_value = y_speed;
                     tend_to_move_directory = "y";
                     if_x = false;
+                    direction = Direction.UP;
                 }
                 case 1 ->{
                     y_speed = 1 ;
                     tend_value = y_speed;
                     tend_to_move_directory = "y";
                     if_x = false;
+                    direction = Direction.DOWN;
                 }
                 case 2 ->{
                     x_speed = -1;
                     tend_value = x_speed;
                     tend_to_move_directory ="x";
                     if_x = true;
+                    direction = Direction.LEFT;
                 }
                 default -> {
                     x_speed = 1;
                     tend_value = x_speed;
                     tend_to_move_directory ="x";
                     if_x = true;
+                    direction = Direction.RIGHT;
                 }
             }
         }
