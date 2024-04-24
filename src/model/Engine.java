@@ -25,56 +25,55 @@ import java.util.Date;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 
+import org.json.JSONObject;
+import org.json.JSONArray;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.IOException;
+import org.json.JSONException;
 
-public class Engine extends JPanel{
-    
+public class Engine extends JPanel {
 
     private int player_count;
     private int round_count;
     private int id_level;
-    //ATTRIBUTES   
-        //FPS
     private int r_movement = 3;
-        //BOOLEAN IF GAME IS PAUSED
     private boolean game_paused = false;
 
     public int point = 0;
-    
+
     private Level _level;
     private Timer _timer;
-    
-    
-    //private Bomb _bomb;
+
+    // private Bomb _bomb;
     private int bombcnt = 0;
-    
-    
 
     private ArrayList<Player> players = new ArrayList();
     private ArrayList<Monster> monsters = new ArrayList();
     private int monster_count = 3;
-    
+
     private ArrayList<Bomb> DroppedBombs = new ArrayList();
     private ArrayList<Explosion> _explosions = new ArrayList();
-    
+
     private boolean spaceButtonPressed;
-    
+
     private Monster _monster;
 
     private Image[] loadPlayerFrames(String string, char c) {
-        int numFrames = 4; 
+        int numFrames = 4;
         Image[] frames = new Image[numFrames];
         int cnt = 0;
         for (int j = 0; j < numFrames; j++) {
             try {
-                String filePath = "src/media/players/player" + c + "/" + string + "/frame-" + (j+1) + ".png";
+                String filePath = "src/media/players/player" + c + "/" + string + "/frame-" + (j + 1) + ".png";
                 System.out.println(filePath);
                 frames[j] = ImageIO.read(new File(filePath));
-            
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    
+
         return frames;
     }
 
@@ -84,40 +83,41 @@ public class Engine extends JPanel{
         int cnt = 0;
         for (int j = 0; j < numFrames; j++) {
             try {
-                String filePath = "src/media/monster/" + direction + "/frame-" + (j+1) + ".png";
+                String filePath = "src/media/monster/" + direction + "/frame-" + (j + 1) + ".png";
                 frames[cnt] = ImageIO.read(new File(filePath));
                 cnt++;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    
+
         return frames;
     }
-    
+
     public Image[] loadExplosionFrames() {
         int numFrames = 8;
-        Image[] frames = new Image[numFrames*numFrames];
+        Image[] frames = new Image[numFrames * numFrames];
         int cnt = 0;
         for (int j = 0; j < numFrames; j++) {
             for (int i = 0; i < numFrames; i++) {
                 try {
-                    //System.out.println("src/media/explosions/row-" + (j+1) + "-column-" + (i+1) + ".png");
-                    frames[cnt] = ImageIO.read(new File("src/media/explosions/row-" + (j+1) + "-column-" + (i+1) + ".png"));
+                    // System.out.println("src/media/explosions/row-" + (j+1) + "-column-" + (i+1) +
+                    // ".png");
+                    frames[cnt] = ImageIO
+                            .read(new File("src/media/explosions/row-" + (j + 1) + "-column-" + (i + 1) + ".png"));
                     cnt++;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
+
             }
-            
+
         }
 
         return frames;
     }
-    
-    public Engine(int player_count, int round_count, int id_level) throws IOException
-    {   
+
+    public Engine(int player_count, int round_count, int id_level) throws IOException, JSONException {
         super();
 
         this.id_level = id_level;
@@ -125,91 +125,50 @@ public class Engine extends JPanel{
         this.round_count = round_count;
 
         _level = new Level("src/levels/level" + id_level + ".txt");
+         String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
+         JSONObject obj = new JSONObject(jsonData);
 
-        for(int i = 0; i < monster_count; i++){
+        for (int i = 0; i < monster_count; i++) {
             generate_Monsters(_level);
         }
 
+         for (int i = 1; i <= player_count; i++) {
+        JSONObject playerControls = obj.getJSONObject("player" + i);
+        String up = playerControls.getString("up");
+        String down = playerControls.getString("down");
+        String left = playerControls.getString("left");
+        String right = playerControls.getString("right");
+        String bomb = playerControls.getString("bomb");
 
-        if (player_count == 1) {
-            Image[] playerFramesUp = loadPlayerFrames("up", '1');
-            Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
-            Image[] playerFramesRight = loadPlayerFrames("right", '1');
+        // Load player frames
+        Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
+        Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
+        Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
+        Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
 
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-            players.add(_player);
-            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
-        }
-        else if (player_count == 2) {
-            Image[] playerFramesUp = loadPlayerFrames("up", '1');
-            Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
-            Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-            
-            players.add(_player);
-            playerFramesUp = loadPlayerFrames("up", '2');
-            playerFramesDown = loadPlayerFrames("down", '2');
-            playerFramesLeft = loadPlayerFrames("left",  '2');
-            playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-            players.add(_player);
+        // Calculate initial positions based on player index (simplified version here)
+        int posX = 40 + (i-1) * 320; // Modify according to your game layout
+        int posY = 40 + (i-1) * 320; // Modify according to your game layout
 
-            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
-            setControls(players.get(1),"W", "A", "S", "D", " C");
-        }
-        else if (player_count == 3) {
-            Image[] playerFramesUp = loadPlayerFrames("up", '1');
-            Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
-            Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+        Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+        players.add(_player);
+        setControls(_player, up, down, left, right, bomb);
+    }
 
-            players.add(_player);
-            playerFramesUp = loadPlayerFrames("up", '2');
-            playerFramesDown = loadPlayerFrames("down", '2');
-            playerFramesLeft = loadPlayerFrames("left",  '2');
-            playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-            players.add(_player);
+        // restart_game();
 
-            playerFramesUp = loadPlayerFrames("up", '3');
-            playerFramesDown = loadPlayerFrames("down", '3');
-            playerFramesLeft = loadPlayerFrames("left",  '3');
-            playerFramesRight = loadPlayerFrames("right", '3');
-            _player = new Player(680, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-            players.add(_player);
-            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
-            setControls(players.get(1),"W", "A", "S", "D", " C");
-            setControls(players.get(2),"O", "L", "K", ";", " M");
-        }
-        //PAUSE
-        this.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "escape");
-        this.getActionMap().put("escape", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                game_paused = !game_paused;
-            }
-        });
-        
-        
-        //restart_game();
-        
-        //ANIMATION
+        // ANIMATION
 
-        //player animations are so fast that they are not visible
-        //this is why we need to slow them down
+        // player animations are so fast that they are not visible
+        // this is why we need to slow them down
 
         _timer = new Timer(30, new FrameUpdate(this));
         _timer.start();
-    
-        
-        
-    } 
+
+    }
 
     public void setControls(Player player, String up, String down, String left, String right, String bombdrop) {
-        
+
         this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + left), "pressed " + left);
         this.getActionMap().put("pressed " + left, new AbstractAction() {
             @Override
@@ -226,15 +185,15 @@ public class Engine extends JPanel{
                 player.set_x_speed(0);
             }
         });
-       
-        //MOVE RIGHT
+
+        // MOVE RIGHT
         this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + right), "pressed " + right);
         this.getActionMap().put("pressed " + right, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_x_speed(+r_movement);
                 player.direction = Direction.RIGHT;
-            }        
+            }
         });
 
         this.getInputMap().put(KeyStroke.getKeyStroke("released " + right), "released " + right);
@@ -244,8 +203,8 @@ public class Engine extends JPanel{
                 player.set_x_speed(0);
             }
         });
-        //MOVE DOWN
-        this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + down), "pressed " + down  );
+        // MOVE DOWN
+        this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + down), "pressed " + down);
         this.getActionMap().put("pressed " + down, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -280,26 +239,26 @@ public class Engine extends JPanel{
 
         this.getInputMap().put(KeyStroke.getKeyStroke(bombdrop), bombdrop);
         this.getActionMap().put(bombdrop, new AbstractAction() {
-        
+
             @Override
-    public void actionPerformed(ActionEvent ae) {
-        if(player.canDropbomb()){
-            System.out.println("BOMB DROPPED");
-            Ground gr = player.whereAmI(_level);
-            Image img = new ImageIcon("src/media/Bomb.png").getImage();
-            Bomb bomb = new Bomb(gr.get_X(), gr.get_Y(), 30, 30, img, player); // Create a new Bomb object
-            //bomb = new Bomb(5, 5, 30, 30, img);
-            DroppedBombs.add(bomb);
-            player.DropBomb();
-        }else{
-            System.out.println("You Ran out of BOMBS");
-        }
-    }
+            public void actionPerformed(ActionEvent ae) {
+                if (player.canDropbomb()) {
+                    System.out.println("BOMB DROPPED");
+                    Ground gr = player.whereAmI(_level);
+                    Image img = new ImageIcon("src/media/Bomb.png").getImage();
+                    Bomb bomb = new Bomb(gr.get_X(), gr.get_Y(), 30, 30, img, player); // Create a new Bomb object
+                    // bomb = new Bomb(5, 5, 30, 30, img);
+                    DroppedBombs.add(bomb);
+                    player.DropBomb();
+                } else {
+                    System.out.println("You Ran out of BOMBS");
+                }
+            }
         });
-        
+
     }
-    
-    public void restart_game(){
+
+    public void restart_game() {
 
         try {
             _level = new Level("src/levels/level" + id_level + ".txt");
@@ -312,64 +271,68 @@ public class Engine extends JPanel{
         DroppedBombs.clear();
         _explosions.clear();
 
-        for(int i = 0; i < monster_count; i++){
+        for (int i = 0; i < monster_count; i++) {
             generate_Monsters(_level);
         }
         if (player_count == 1) {
             Image[] playerFramesUp = loadPlayerFrames("up", '1');
             Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
+            Image[] playerFramesLeft = loadPlayerFrames("left", '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
 
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
             players.add(_player);
-            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
-        }
-        else if (player_count == 2) {
+            setControls(players.get(0), "T", "G", "F", "H", " SPACE");
+        } else if (player_count == 2) {
             Image[] playerFramesUp = loadPlayerFrames("up", '1');
             Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
+            Image[] playerFramesLeft = loadPlayerFrames("left", '1');
             Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-            
-            players.add(_player);
-            playerFramesUp = loadPlayerFrames("up", '2');
-            playerFramesDown = loadPlayerFrames("down", '2');
-            playerFramesLeft = loadPlayerFrames("left",  '2');
-            playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-            players.add(_player);
-
-            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
-            setControls(players.get(1),"W", "A", "S", "D", " C");
-        }
-        else if (player_count == 3) {
-            Image[] playerFramesUp = loadPlayerFrames("up", '1');
-            Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left",  '1');
-            Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
 
             players.add(_player);
             playerFramesUp = loadPlayerFrames("up", '2');
             playerFramesDown = loadPlayerFrames("down", '2');
-            playerFramesLeft = loadPlayerFrames("left",  '2');
+            playerFramesLeft = loadPlayerFrames("left", '2');
             playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
+            players.add(_player);
+
+            setControls(players.get(0), "T", "G", "F", "H", " SPACE");
+            setControls(players.get(1), "W", "A", "S", "D", " C");
+        } else if (player_count == 3) {
+            Image[] playerFramesUp = loadPlayerFrames("up", '1');
+            Image[] playerFramesDown = loadPlayerFrames("down", '1');
+            Image[] playerFramesLeft = loadPlayerFrames("left", '1');
+            Image[] playerFramesRight = loadPlayerFrames("right", '1');
+            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
+
+            players.add(_player);
+            playerFramesUp = loadPlayerFrames("up", '2');
+            playerFramesDown = loadPlayerFrames("down", '2');
+            playerFramesLeft = loadPlayerFrames("left", '2');
+            playerFramesRight = loadPlayerFrames("right", '2');
+            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
             players.add(_player);
 
             playerFramesUp = loadPlayerFrames("up", '3');
             playerFramesDown = loadPlayerFrames("down", '3');
-            playerFramesLeft = loadPlayerFrames("left",  '3');
+            playerFramesLeft = loadPlayerFrames("left", '3');
             playerFramesRight = loadPlayerFrames("right", '3');
-            _player = new Player(680, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            _player = new Player(680, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
             players.add(_player);
-            setControls(players.get(0),"T", "G", "F", "H", " SPACE");
-            setControls(players.get(1),"W", "A", "S", "D", " C");
-            setControls(players.get(2),"O", "L", "K", ";", " M");
+            setControls(players.get(0), "T", "G", "F", "H", " SPACE");
+            setControls(players.get(1), "W", "A", "S", "D", " C");
+            setControls(players.get(2), "O", "L", "K", ";", " M");
         }
     }
-    
+
     public void generate_Monsters(Level currentLevel) {
         Random r = new Random();
         boolean isfound = false;
@@ -396,79 +359,80 @@ public class Engine extends JPanel{
                 }
 
             }
-            if(tmp && tmp2)
-            {
-                Image[] monsterFramesUp = loadMonsterFrames("up"); 
-                    
-                Image[] monsterFramesDown = loadMonsterFrames("down"); 
-                Image[] monsterFramesLeft = loadMonsterFrames("left"); 
-                Image[] monsterFramesRight = loadMonsterFrames("right"); 
-                    
-                Monster _monster = new Monster(x, y, 40, 40, monsterFramesUp, monsterFramesDown, monsterFramesLeft, monsterFramesRight);
+            if (tmp && tmp2) {
+                Image[] monsterFramesUp = loadMonsterFrames("up");
+
+                Image[] monsterFramesDown = loadMonsterFrames("down");
+                Image[] monsterFramesLeft = loadMonsterFrames("left");
+                Image[] monsterFramesRight = loadMonsterFrames("right");
+
+                Monster _monster = new Monster(x, y, 40, 40, monsterFramesUp, monsterFramesDown, monsterFramesLeft,
+                        monsterFramesRight);
 
                 monsters.add(_monster);
                 isfound = true;
             }
-            
+
         }
     }
-    
+
     @Override
     protected void paintComponent(Graphics grphcs) {
-        
-            super.paintComponent(grphcs);
-            //grphcs.drawImage(bg, 0, 0, 800, 800, null);
-            _level.placeGrounds(grphcs);
-            _level.placeWalls(grphcs);
-            
-            _level.placeBoxes(grphcs);
 
-            for(int i = 0; i < players.size(); i++){
-                players.get(i).drawObject(grphcs);
-            }
-            
-            for(int i = 0; i < monsters.size(); i++){
-                monsters.get(i).drawObject(grphcs);
-            }
+        super.paintComponent(grphcs);
+        // grphcs.drawImage(bg, 0, 0, 800, 800, null);
+        _level.placeGrounds(grphcs);
+        _level.placeWalls(grphcs);
 
-            for(int i = 0; i< DroppedBombs.size(); i++){
-                DroppedBombs.get(i).drawObject(grphcs);
-            }
+        _level.placeBoxes(grphcs);
 
-            Iterator<Explosion> iterator;
-            iterator = _explosions.iterator();
-            while (iterator.hasNext()) {
-                Explosion explosion = iterator.next();
-                explosion.draw(grphcs);
-                if (explosion.isFinished()) {
-                    iterator.remove();
-                }
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).drawObject(grphcs);
+        }
+
+        for (int i = 0; i < monsters.size(); i++) {
+            monsters.get(i).drawObject(grphcs);
+        }
+
+        for (int i = 0; i < DroppedBombs.size(); i++) {
+            DroppedBombs.get(i).drawObject(grphcs);
+        }
+
+        Iterator<Explosion> iterator;
+        iterator = _explosions.iterator();
+        while (iterator.hasNext()) {
+            Explosion explosion = iterator.next();
+            explosion.draw(grphcs);
+            if (explosion.isFinished()) {
+                iterator.remove();
             }
+        }
     }
-    
+
     class FrameUpdate implements ActionListener {
 
         public JPanel panel;
- 
+
         FrameUpdate(JPanel panel) {
             this.panel = panel;
         }
-        
-        @Override       
+
+        @Override
         public void actionPerformed(ActionEvent ae) {
             if (!game_paused) {
-                
-                for(int q = 0; q < monsters.size(); q++){
+
+                for (int q = 0; q < monsters.size(); q++) {
 
                     monsters.get(q).move();
-                    for(int i = 0; i < players.size(); i++){
+                    for (int i = 0; i < players.size(); i++) {
                         if (monsters.get(q).did_hit(players.get(i))) {
-                            //String user_name = JOptionPane.showInputDialog("MONSTER KILLED YOU!!!! " + (point) + " POINTS EARNED\n      Please give your name:","");
+                            // String user_name = JOptionPane.showInputDialog("MONSTER KILLED YOU!!!! " +
+                            // (point) + " POINTS EARNED\n Please give your name:","");
                             players.remove(i);
                         }
                     }
 
-                    for(int i = 0; i < DroppedBombs.size(); i++){
+                    for (int i = 0; i < DroppedBombs.size(); i++) {
                         if (monsters.get(q).did_hit(DroppedBombs.get(i))) {
                             monsters.get(q).ChangeDirection(_level);
                         }
@@ -478,8 +442,8 @@ public class Engine extends JPanel{
                         monsters.get(q).ChangeDirection(_level);
                     }
 
-                    for(int i = 0; i < monsters.size(); i++){
-                        if(i != q){
+                    for (int i = 0; i < monsters.size(); i++) {
+                        if (i != q) {
                             if (monsters.get(q).did_hit(monsters.get(i))) {
                                 monsters.get(q).ChangeDirection(_level);
                             }
@@ -495,48 +459,49 @@ public class Engine extends JPanel{
                     long elapsedTime = System.currentTimeMillis() - bomb.timestamp;
                     if (elapsedTime >= 3000) { // 90 seconds in milliseconds
                         System.out.println(DroppedBombs.size());
-                        bomb.owner.canDropBomb = true; // Set canDropBomb back to true for the player who dropped the bomb
+                        bomb.owner.canDropBomb = true; // Set canDropBomb back to true for the player who dropped the
+                                                       // bomb
                         Image[] explosionFrames = loadExplosionFrames();
                         _explosions.add(new Explosion(bomb._x, bomb._y, 40, 40, explosionFrames));
                         bomb.explode(_level.boxes, players, monsters, _level.walls, _explosions);
                         iterator.remove(); // Use the iterator's remove method
                     }
                 }
-                    
-                //System.out.println(tempcnt);
-                for(int i = 0; i < players.size(); i++){
-                     if (_level.did_hit(players.get(i))) {
-                         players.get(i).set_x_speed(0);
-                         players.get(i).set_y_speed(0);
-                     }
-                         
-                     
+
+                // System.out.println(tempcnt);
+                for (int i = 0; i < players.size(); i++) {
+                    if (_level.did_hit(players.get(i))) {
+                        players.get(i).set_x_speed(0);
+                        players.get(i).set_y_speed(0);
+                    }
+
                     if (players != null && !players.isEmpty()) {
                         players.get(i).move();
-                    }else if(round_count > 0){
+                    } else if (round_count > 0) {
 
-                        JOptionPane.showMessageDialog(null, "GAME OVER rounds left: " + round_count + " points earned: " + point);
+                        JOptionPane.showMessageDialog(null,
+                                "GAME OVER rounds left: " + round_count + " points earned: " + point);
                         restart_game();
                         round_count--;
-                    }else if(round_count == 0){
-                        JOptionPane.showMessageDialog(null, "GAME OVER points earned: NO MORE ROUNDS LEFT" + point);   
+                    } else if (round_count == 0) {
+                        JOptionPane.showMessageDialog(null, "GAME OVER points earned: NO MORE ROUNDS LEFT" + point);
                         System.exit(0);
                     }
-                    
+
                     for (Explosion explosion : _explosions) {
                         explosion.update();
                     }
                 }
 
-                if(players.size() <= 1 && round_count == 0){
+                if (players.size() <= 1 && round_count == 0) {
                     JOptionPane.showMessageDialog(null, "GAME OVER");
                     System.exit(0);
                 }
-                
+
             }
 
             repaint();
         }
-    
-    }     
- }
+
+    }
+}
