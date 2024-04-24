@@ -10,6 +10,11 @@
 <project name="Lightning" default="default" basedir=".">
     <description>Builds, tests, and runs the project Lightning.</description>
     <import file="nbproject/build-impl.xml"/>
+    <path id="classpath">
+        <fileset dir="lib" includes="*.jar"/>
+    </path>
+    
+    <javac srcdir="src" destdir="build" classpathref="classpath"/>
     <!--
 
     There exist several targets which are by default empty and which can be 
