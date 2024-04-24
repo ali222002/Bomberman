@@ -10,19 +10,21 @@ before_script:
   - add-apt-repository -y ppa:openjdk-r/ppa
   - apt-get update -yqq
   - apt-get install -yqq openjdk-17-jdk ant junit4
-  
+  - mkdir lib
+  - curl -L -o lib/json.jar https://search.maven.org/remotecontent?filepath=org/json/json/20240303/json-20240303.jar
+
 # Build
 build_game:
   stage: build
   script:
-    - ant compile
-    - ant jar
+    - ant compile -lib lib
+    - ant jar -lib lib
 
 # Test
 test_model:
   stage: test
   script:
     - >
-      ant test
+      ant test -lib lib
       -Dlibs.junit_4.classpath=/usr/share/java/junit4.jar
       -Dlibs.hamcrest.classpath=/usr/share/java/hamcrest-core.jar
