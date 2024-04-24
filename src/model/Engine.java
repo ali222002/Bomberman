@@ -419,6 +419,7 @@ public class Engine extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
+            
             if (!game_paused) {
 
                 for (int q = 0; q < monsters.size(); q++) {
