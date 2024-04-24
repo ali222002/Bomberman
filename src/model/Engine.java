@@ -39,6 +39,7 @@ public class Engine extends JPanel {
     private int id_level;
     private int r_movement = 3;
     private boolean game_paused = false;
+    ActiveObject gameObj;
 
     public int point = 0;
 
@@ -116,14 +117,19 @@ public class Engine extends JPanel {
 
         return frames;
     }
-
+    public void displayUIELements(){
+        
+    }
     public Engine(int player_count, int round_count, int id_level) throws IOException, JSONException {
         super();
-
+        
         this.id_level = id_level;
         this.player_count = player_count;
         this.round_count = round_count;
-
+        
+        Image image1 = new ImageIcon("src/media/black.png").getImage();
+        gameObj = new ActiveObject( 760 ,  0, 250, 800, image1);
+        
         _level = new Level("src/levels/level" + id_level + ".txt");
          String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
          JSONObject obj = new JSONObject(jsonData);
@@ -258,8 +264,8 @@ public class Engine extends JPanel {
 
     }
 
-    public void restart_game() {
-
+    public void restart_game() throws IOException {
+        
         try {
             _level = new Level("src/levels/level" + id_level + ".txt");
         } catch (IOException e) {
@@ -270,66 +276,33 @@ public class Engine extends JPanel {
         monsters.clear();
         DroppedBombs.clear();
         _explosions.clear();
-
+        round_count--;
         for (int i = 0; i < monster_count; i++) {
             generate_Monsters(_level);
         }
-        if (player_count == 1) {
-            Image[] playerFramesUp = loadPlayerFrames("up", '1');
-            Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left", '1');
-            Image[] playerFramesRight = loadPlayerFrames("right", '1');
+        for (int i = 1; i <= player_count; i++) {
+           String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
+           JSONObject obj = new JSONObject(jsonData);
+           JSONObject playerControls = obj.getJSONObject("player" + i);
+           String up = playerControls.getString("up");
+           String down = playerControls.getString("down");
+           String left = playerControls.getString("left");
+           String right = playerControls.getString("right");
+           String bomb = playerControls.getString("bomb");
 
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
-            players.add(_player);
-            setControls(players.get(0), "T", "G", "F", "H", " SPACE");
-        } else if (player_count == 2) {
-            Image[] playerFramesUp = loadPlayerFrames("up", '1');
-            Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left", '1');
-            Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
+           // Load player frames
+           Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
+           Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
+           Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
+           Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
 
-            players.add(_player);
-            playerFramesUp = loadPlayerFrames("up", '2');
-            playerFramesDown = loadPlayerFrames("down", '2');
-            playerFramesLeft = loadPlayerFrames("left", '2');
-            playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
-            players.add(_player);
+           // Calculate initial positions based on player index (simplified version here)
+           int posX = 40 + (i-1) * 320; // Modify according to your game layout
+           int posY = 40 + (i-1) * 320; // Modify according to your game layout
 
-            setControls(players.get(0), "T", "G", "F", "H", " SPACE");
-            setControls(players.get(1), "W", "A", "S", "D", " C");
-        } else if (player_count == 3) {
-            Image[] playerFramesUp = loadPlayerFrames("up", '1');
-            Image[] playerFramesDown = loadPlayerFrames("down", '1');
-            Image[] playerFramesLeft = loadPlayerFrames("left", '1');
-            Image[] playerFramesRight = loadPlayerFrames("right", '1');
-            Player _player = new Player(40, 40, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
-
-            players.add(_player);
-            playerFramesUp = loadPlayerFrames("up", '2');
-            playerFramesDown = loadPlayerFrames("down", '2');
-            playerFramesLeft = loadPlayerFrames("left", '2');
-            playerFramesRight = loadPlayerFrames("right", '2');
-            _player = new Player(40, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
-            players.add(_player);
-
-            playerFramesUp = loadPlayerFrames("up", '3');
-            playerFramesDown = loadPlayerFrames("down", '3');
-            playerFramesLeft = loadPlayerFrames("left", '3');
-            playerFramesRight = loadPlayerFrames("right", '3');
-            _player = new Player(680, 680, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
-            players.add(_player);
-            setControls(players.get(0), "T", "G", "F", "H", " SPACE");
-            setControls(players.get(1), "W", "A", "S", "D", " C");
-            setControls(players.get(2), "O", "L", "K", ";", " M");
+           Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+           players.add(_player);
+           setControls(_player, up, down, left, right, bomb);
         }
     }
 
@@ -380,6 +353,8 @@ public class Engine extends JPanel {
     protected void paintComponent(Graphics grphcs) {
 
         super.paintComponent(grphcs);
+        
+        gameObj.drawObject(grphcs);
         // grphcs.drawImage(bg, 0, 0, 800, 800, null);
         _level.placeGrounds(grphcs);
         _level.placeWalls(grphcs);
@@ -478,26 +453,38 @@ public class Engine extends JPanel {
 
                     if (players != null && !players.isEmpty()) {
                         players.get(i).move();
-                    } else if (round_count > 0) {
-
-                        JOptionPane.showMessageDialog(null,
-                                "GAME OVER rounds left: " + round_count + " points earned: " + point);
-                        restart_game();
-                        round_count--;
-                    } else if (round_count == 0) {
-                        JOptionPane.showMessageDialog(null, "GAME OVER points earned: NO MORE ROUNDS LEFT" + point);
-                        System.exit(0);
-                    }
+                      } 
+//                          else if (round_count > 0) {
+//
+//                        JOptionPane.showMessageDialog(null,
+//                                "GAME OVER rounds left: " + round_count + " points earned: " + point);
+//                        try {
+//                            restart_game();
+//                        } catch (IOException ex) {
+//                            Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//                        }
+//                        round_count--;
+//                    } else if (round_count == 0) {
+//                        JOptionPane.showMessageDialog(null, "GAME OVER points earned: NO MORE ROUNDS LEFT" + point);
+//                        System.exit(0);
+//                    }
 
                     for (Explosion explosion : _explosions) {
                         explosion.update();
                     }
                 }
-
-                if (players.size() <= 1 && round_count == 0) {
+                
+                if(round_count == 0){
                     JOptionPane.showMessageDialog(null, "GAME OVER");
                     System.exit(0);
-                }
+                }else if (players.size() == 0 && round_count > 0) {
+                            JOptionPane.showMessageDialog(null, "Round OVER");
+                        try {
+                            restart_game();
+                        } catch (IOException ex) {
+                            Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                        }
+                    }
 
             }
 
