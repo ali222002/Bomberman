@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import org.json.JSONException;
 
 class StartGame {
         JFrame frame;
@@ -25,7 +26,7 @@ class StartGame {
         Font titleFont = new Font("Arial", Font.BOLD, 90);
         Font normalFont = new Font("Arial", Font.BOLD, 28);
         JButton startButton, exitButton, settingsButton;
-    public StartGame(int playerCNT, int roundCNT, int mapId) throws IOException {        
+    public StartGame(int playerCNT, int roundCNT, int mapId) throws IOException, JSONException {        
         frame = new JFrame("BOMBERMAN");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
