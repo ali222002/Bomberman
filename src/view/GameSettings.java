@@ -4,13 +4,22 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
+import org.json.JSONObject;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONException;
 class GameSettings{
     
     JFrame frame;
@@ -22,6 +31,83 @@ class GameSettings{
     Font normalFont = new Font("Arial", Font.BOLD, 28);
     JButton startButton, exitButton, settingsButton;
     
+class ControlSettingsFrame extends JFrame {
+    Font controlFont = new Font("Arial", Font.PLAIN, 18);
+    GameSettings gameSettings; // Reference to the main game settings
+
+     public ControlSettingsFrame(GameSettings parent) throws JSONException {
+        this.gameSettings = parent;
+        setTitle("Control Settings");
+        setSize(600, 800);
+        setLayout(new GridLayout(4, 1));
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JSONObject controls = GameSettings.loadControls();
+        addPlayerControls("Player 1", controls.getJSONObject("player1"));
+        addPlayerControls("Player 2", controls.getJSONObject("player2"));
+        addPlayerControls("Player 3", controls.getJSONObject("player3"));
+
+        JButton goBackButton = new JButton("Go Back");
+        goBackButton.setFont(controlFont);
+        goBackButton.addActionListener(e -> {
+            GameSettings.saveControls(controls); // Save when going back
+            this.dispose();
+            gameSettings.frame.setVisible(true);
+        });
+        add(goBackButton);
+
+        setVisible(true);
+    }
+
+    private void addPlayerControls(String playerName, JSONObject playerControls) throws JSONException {
+        JPanel playerPanel = new JPanel();
+        playerPanel.setLayout(new GridLayout(5, 1));
+        playerPanel.setBorder(BorderFactory.createTitledBorder(playerName));
+
+        // Control descriptions
+        String[] actions = {"up", "down", "left", "right", "bomb"};
+        String[] descriptions = {"Up - ", "Down - ", "Left - ", "Right - ", "Drop Bomb - "};
+        for (int i = 0; i < actions.length; i++) {
+            String action = actions[i];
+            JButton button = new JButton(descriptions[i] + playerControls.getString(action));
+            button.setFont(controlFont);
+            int x = i;
+            button.addActionListener(e -> {
+                String newKey = JOptionPane.showInputDialog(this, "Enter new key for " + descriptions[x].trim() + ":");
+                if (newKey != null && !newKey.isEmpty()) {
+                    try {
+                        playerControls.put(action, newKey.toUpperCase());
+                    } catch (JSONException ex) {
+                        Logger.getLogger(GameSettings.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    button.setText(descriptions[x] + newKey.toUpperCase());
+                }
+            });
+
+            playerPanel.add(button);
+        }
+
+        add(playerPanel);
+    }
+
+}
+        public static JSONObject loadControls() {
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
+            return new JSONObject(content);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void saveControls(JSONObject controls) {
+        try {
+            Files.write(Paths.get("src/database/controls.json"), controls.toString(4).getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     public GameSettings() {        
         frame = new JFrame("BOMBERMAN");
@@ -55,8 +141,11 @@ class GameSettings{
         
         startButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //System.out.println("sljdahnkj");
-                
+                try {
+                    new ControlSettingsFrame(GameSettings.this);
+                } catch (JSONException ex) {
+                    Logger.getLogger(GameSettings.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 frame.dispose(); 
             }
         });
@@ -117,6 +206,9 @@ class GameSettings{
         frame.setResizable(false);
         frame.pack();
         frame.setVisible(true);
+    }
+        public static void main(String[] args) {
+        new GameSettings();
     }
    
 }
