@@ -160,12 +160,13 @@ public class Engine extends JPanel {
             String right = playerControls.getString("right");
             String bomb = playerControls.getString("bomb");
 
-            // Load player frames
-            Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
-            Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
-            Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
-            Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
-            int posX = 0;
+        // Load player frames
+        Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
+        Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
+        Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
+        Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
+        
+        int posX = 0;
             int posY = 0;
             if (i == 1){
                 posX = 40; 
