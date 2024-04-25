@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.IOException;
 import org.json.JSONException;
+import java.awt.image.BufferedImage;
 
 public class Engine extends JPanel {
 
@@ -39,7 +40,11 @@ public class Engine extends JPanel {
     private int id_level;
     private int r_movement = 3;
     private boolean game_paused = false;
+
     ActiveObject gameObj;
+    ActiveObject playerObj;
+
+    public ArrayList<ActiveObject> playersUI = new ArrayList();
 
     public int point = 0;
 
@@ -129,36 +134,54 @@ public class Engine extends JPanel {
         
         Image image1 = new ImageIcon("src/media/black.png").getImage();
         gameObj = new ActiveObject( 760 ,  0, 250, 800, image1);
+
+        
+        
         
         _level = new Level("src/levels/level" + id_level + ".txt");
          String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
          JSONObject obj = new JSONObject(jsonData);
+         
 
         for (int i = 0; i < monster_count; i++) {
             generate_Monsters(_level);
         }
+        int cc = 10;
+        for (int i = 1; i <= player_count; i++) {
 
-         for (int i = 1; i <= player_count; i++) {
-        JSONObject playerControls = obj.getJSONObject("player" + i);
-        String up = playerControls.getString("up");
-        String down = playerControls.getString("down");
-        String left = playerControls.getString("left");
-        String right = playerControls.getString("right");
-        String bomb = playerControls.getString("bomb");
+            Image playerImage = new ImageIcon("src/media/player"+ i +".png").getImage();
+            playerObj = new ActiveObject( 770 ,  cc, 150, 100, playerImage);
+            playersUI.add(playerObj);
+            cc += 110;
+            JSONObject playerControls = obj.getJSONObject("player" + i);
+            String up = playerControls.getString("up");
+            String down = playerControls.getString("down");
+            String left = playerControls.getString("left");
+            String right = playerControls.getString("right");
+            String bomb = playerControls.getString("bomb");
 
-        // Load player frames
-        Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
-        Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
-        Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
-        Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
+            // Load player frames
+            Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
+            Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
+            Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
+            Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
+            int posX = 0;
+            int posY = 0;
+            if (i == 1){
+                posX = 40; 
+                posY = 40; 
+            }else if(i ==2){
+                posX = 40;
+                posY = 680; 
+            }else if(i ==3 ){
+                posX = 680;
+                posY = 680;
+            }
 
-        // Calculate initial positions based on player index (simplified version here)
-        int posX = 40 + (i-1) * 320; // Modify according to your game layout
-        int posY = 40 + (i-1) * 320; // Modify according to your game layout
 
-        Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-        players.add(_player);
-        setControls(_player, up, down, left, right, bomb);
+            Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            players.add(_player);
+            setControls(_player, up, down, left, right, bomb);
     }
 
         // restart_game();
@@ -167,8 +190,9 @@ public class Engine extends JPanel {
 
         // player animations are so fast that they are not visible
         // this is why we need to slow them down
-
-        _timer = new Timer(30, new FrameUpdate(this));
+        int frameRate = 25;
+        int delay = 1000 / frameRate;
+        _timer = new Timer(delay, new FrameUpdate(this));
         _timer.start();
 
     }
@@ -189,6 +213,7 @@ public class Engine extends JPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_x_speed(0);
+                player.direction = null;
             }
         });
 
@@ -207,6 +232,7 @@ public class Engine extends JPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_x_speed(0);
+                player.direction = null;
             }
         });
         // MOVE DOWN
@@ -224,6 +250,7 @@ public class Engine extends JPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_y_speed(0);
+                player.direction = null;
             }
         });
         this.getInputMap().put(KeyStroke.getKeyStroke("pressed " + up), "pressed " + up);
@@ -240,6 +267,7 @@ public class Engine extends JPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 player.set_y_speed(0);
+                player.direction = null;
             }
         });
 
@@ -355,11 +383,13 @@ public class Engine extends JPanel {
         super.paintComponent(grphcs);
         
         gameObj.drawObject(grphcs);
+        
         // grphcs.drawImage(bg, 0, 0, 800, 800, null);
         _level.placeGrounds(grphcs);
         _level.placeWalls(grphcs);
-
+        _level.placePowerups(grphcs);
         _level.placeBoxes(grphcs);
+
 
         for (int i = 0; i < players.size(); i++) {
             players.get(i).drawObject(grphcs);
@@ -371,6 +401,10 @@ public class Engine extends JPanel {
 
         for (int i = 0; i < DroppedBombs.size(); i++) {
             DroppedBombs.get(i).drawObject(grphcs);
+        }
+
+        for (int i = 0; i < playersUI.size(); i++) {
+            playersUI.get(i).drawObject(grphcs);
         }
 
         Iterator<Explosion> iterator;
@@ -450,7 +484,13 @@ public class Engine extends JPanel {
                         players.get(i).set_x_speed(0);
                         players.get(i).set_y_speed(0);
                     }
-
+                    for (int j = 0; j < _level.powerups.size(); j++){
+                        if (players.get(i).did_hit(_level.powerups.get(j))){
+                            
+                            players.get(i).powerups.add(_level.powerups.get(j));
+                            _level.powerups.remove(j);
+                        }
+                    }
                     if (players != null && !players.isEmpty()) {
                         players.get(i).move();
                       } 
@@ -484,8 +524,10 @@ public class Engine extends JPanel {
                         } catch (IOException ex) {
                             Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
                         }
-                    }
-
+                }
+//                if (players.get(0).powerups.size() >= 1){
+//                    System.out.println(players.get(0).powerups.size());
+//                }
             }
 
             repaint();

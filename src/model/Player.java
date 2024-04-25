@@ -36,6 +36,7 @@ class Player extends ActiveObject{
     public boolean canDropBomb = true;
     
     public Bomb bomb;
+    public ArrayList<Powerups> powerups = new ArrayList<Powerups>();
     //public ArrayList<Bomb> playersBombs = new ArrayList();
     
     // METHODS
@@ -158,7 +159,7 @@ class Player extends ActiveObject{
                 }
             }
 
-
+            
             if (this.did_hit(ground) && (isGroundFreeofB && isGroundFreeofW)) {
                return ground;
             }

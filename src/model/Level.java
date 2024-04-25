@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
+import java.util.Random;
 
 
 class Level {
@@ -17,6 +18,7 @@ class Level {
     public ArrayList<Wall> walls;
     public ArrayList<Box> boxes;
     public ArrayList<Ground> grounds;
+    public ArrayList<Powerups> powerups;
     
     //CONSTRUCTOR
     public Level(String levelPath) throws IOException {
@@ -32,7 +34,9 @@ class Level {
         walls = new ArrayList<>();
         boxes = new ArrayList<>();
         grounds = new ArrayList<>();
-        
+        powerups = new ArrayList<>();
+        Random random = new Random();
+        int randomNumber;
         /////////////////////////// placing walls according to a txt file//////////////////////
         while ((line = br.readLine()) != null) {
             int x_cnt = 0;
@@ -49,8 +53,22 @@ class Level {
                     walls.add(new Wall(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image));
                     }
                     if(index == 2){
-                        Image image = new ImageIcon("src/media/box.png").getImage();
-                        boxes.add(new Box(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image));
+                        randomNumber = random.nextInt(100);
+                        if (randomNumber < 7){
+                            randomNumber = random.nextInt(2);
+                            if(randomNumber == 1){
+                                Image image = new ImageIcon("src/media/explosion1.png").getImage();
+                                powerups.add(new MoreBombPowerup(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image, 2));
+                            }else{
+                                Image image = new ImageIcon("src/media/explosion2.png").getImage();
+                                powerups.add(new RangePowerup(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image, 3));
+                            }
+                            
+                        }
+                        
+                       Image image2 = new ImageIcon("src/media/box.png").getImage();
+                       boxes.add(new Box(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image2));
+                        
                     }
                     
                     
@@ -80,6 +98,12 @@ class Level {
             box.drawObject(g);
         }
     }
+    public void placePowerups(Graphics g) {
+        for (Powerups powerup : powerups) {
+            powerup.drawObject(g);
+        }
+    }
+    
     //DID PLAYER ENCOUNTER A WALL ror BOX???
     public boolean did_hit(Player player) {
         Wall whits = null;
