@@ -22,7 +22,30 @@ build_game:
 test_model:
   stage: test
   script:
-    - >
-      ant test -lib lib
-      -Dlibs.junit_4.classpath=/usr/share/java/junit4.jar
-      -Dlibs.hamcrest.classpath=/usr/share/java/hamcrest-core.jar
+    - ant test -lib lib -Dlibs.junit_4.classpath=/usr/share/java/junit4.jar -Dlibs.hamcrest.classpath=/usr/share/java/hamcrest-core.jar
+  artifacts:
+    when: always
+    reports:
+      junit: output/*.xml
+  only:
+    - master
+  except:
+    - schedules
+  allow_failure: false
+
+# Additional Test Stage Example
+functional_tests:
+  stage: test
+  script:
+    - ant run-functional-tests -lib lib -Dtest.config=testing/config/functional-tests.xml
+  artifacts:
+    when: always
+    paths:
+      - output/screenshots
+    reports:
+      junit: output/functional-tests-results.xml
+  only:
+    - master
+  except:
+    - schedules
+  allow_failure: false
