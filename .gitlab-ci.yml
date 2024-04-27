@@ -32,20 +32,3 @@ test_model:
   except:
     - schedules
   allow_failure: false
-
-# Additional Test Stage Example
-functional_tests:
-  stage: test
-  script:
-    - ant run-functional-tests -lib lib -Dtest.config=testing/config/functional-tests.xml
-  artifacts:
-    when: always
-    paths:
-      - output/screenshots
-    reports:
-      junit: output/functional-tests-results.xml
-  only:
-    - master
-  except:
-    - schedules
-  allow_failure: false
