@@ -1,10 +1,10 @@
 {
     "player1": {
-        "left": "S",
-        "up": "S",
-        "right": "F",
+        "left": "A",
+        "up": "W",
+        "right": "D",
         "bomb": "SPACE",
-        "down": "D"
+        "down": "S"
     },
     "player2": {
         "left": "F",
