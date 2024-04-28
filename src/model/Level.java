@@ -57,10 +57,10 @@ class Level {
                         if (randomNumber < 7){
                             randomNumber = random.nextInt(2);
                             if(randomNumber == 1){
-                                Image image = new ImageIcon("src/media/explosion1.png").getImage();
+                                Image image = new ImageIcon("src/media/moreB.png").getImage();
                                 powerups.add(new MoreBombPowerup(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image, 2));
                             }else{
-                                Image image = new ImageIcon("src/media/explosion2.png").getImage();
+                                Image image = new ImageIcon("src/media/moreR.png").getImage();
                                 powerups.add(new RangePowerup(x_cnt * w_width, y_cnt * w_height, w_width, w_height, image, 3));
                             }
                             
