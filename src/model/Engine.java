@@ -41,6 +41,8 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import org.json.JSONException;
 import java.awt.image.BufferedImage;
+import javax.swing.JButton;
+import javax.swing.SwingUtilities;
 
 public class Engine extends JPanel {
 
@@ -63,6 +65,10 @@ public class Engine extends JPanel {
     // private Bomb _bomb;
     private int bombcnt = 0;
 
+        private static Clip musicClip;
+    private JButton toggleMusicButton;
+    private boolean musicPlaying = false;
+    
     private ArrayList<Player> players = new ArrayList();
     private ArrayList<Monster> monsters = new ArrayList();
     private int monster_count = 3;
@@ -205,44 +211,78 @@ public class Engine extends JPanel {
         _timer = new Timer(delay, new FrameUpdate(this));
         _timer.start();
         
-            playMusic("src/sounds/music.wav", 0.3f);
+        initMusic("src/sounds/music.wav", 0.05f);
+        addToggleMusicButton();
+        setLayout(null);
 
     }
     
-private void playMusic(String filePath, float volume) {
+private void initMusic(String filePath, float volume) {
+        try {
+            File audioFile = new File(filePath);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
+            musicClip = AudioSystem.getClip();
+            musicClip.open(audioIn);
+            setVolume(volume);  // Sets volume after opening the clip
+            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            musicPlaying = true;  // Assuming music starts playing automatically
+        } catch (Exception e) {
+            e.printStackTrace();
+            musicPlaying = false;
+        }
+    }
+
+    private void setVolume(float volume) {
+        if (musicClip != null && musicClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gainControl = (FloatControl) musicClip.getControl(FloatControl.Type.MASTER_GAIN);
+            float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0); // Convert volume from linear scale to dB
+            gainControl.setValue(dB);
+        } else {
+            System.out.println("Volume control not supported or clip not initialized.");
+        }
+    }
+
+    private void addToggleMusicButton() {
+    ImageIcon icon = new ImageIcon("src/media/sound.png");
+    toggleMusicButton = new JButton(icon);
+    toggleMusicButton.setBorderPainted(false); // No border painting
+    toggleMusicButton.setContentAreaFilled(false); // No background fill
+    toggleMusicButton.setFocusPainted(false); // No focus border
+    toggleMusicButton.setOpaque(false);
+    toggleMusicButton.addActionListener(e -> {
+    new Thread(() -> {
+        if (musicPlaying) {
+            musicClip.stop();
+            musicPlaying = false;
+        } else {
+            musicClip.start();
+            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            musicPlaying = true;
+        }
+        SwingUtilities.invokeLater(() -> {
+            Engine.this.requestFocus();
+        });
+    }).start();
+});
+
+    // position and size of the button
+    toggleMusicButton.setBounds(900, 650, 80, 80);
+    add(toggleMusicButton); // Adds the button to the panel
+}
+
+private void playSound(String filePath) {
     try {
         File audioFile = new File(filePath);
-        if (!audioFile.exists()) {
-            System.out.println("File not found: " + filePath);
-            return;
-        }
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
-
-        // Check if volume control is supported and set it
-        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            // Convert volume from linear scale to dB
-            float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
-            gainControl.setValue(dB);
-        } else {
-            System.out.println("Volume control not supported");
-        }
-
         clip.start();
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
-    } catch (UnsupportedAudioFileException e) {
-        System.out.println("Unsupported audio file: " + e);
-        e.printStackTrace();
-    } catch (IOException e) {
-        System.out.println("IO error: " + e);
-        e.printStackTrace();
-    } catch (LineUnavailableException e) {
-        System.out.println("Line unavailable: " + e);
+    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        System.out.println("Error with playing sound.");
         e.printStackTrace();
     }
 }
+
     
 
     public void setControls(Player player, String up, String down, String left, String right, String bombdrop) {
@@ -537,6 +577,7 @@ private void playMusic(String filePath, float volume) {
                             
                             players.get(i).powerups.add(_level.powerups.get(j));
                             _level.powerups.remove(j);
+                            playSound("src/sounds/boostUP.wav");
                         }
                     }
                     if (players != null && !players.isEmpty()) {
