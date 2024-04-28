@@ -205,13 +205,12 @@ public class Engine extends JPanel {
         _timer = new Timer(delay, new FrameUpdate(this));
         _timer.start();
         
-            playMusic("src/sounds/music.wav");
+            playMusic("src/sounds/music.wav", 0.3f);
 
     }
     
-private void playMusic(String filePath) {
+private void playMusic(String filePath, float volume) {
     try {
-        // Directly use a file path
         File audioFile = new File(filePath);
         if (!audioFile.exists()) {
             System.out.println("File not found: " + filePath);
@@ -220,6 +219,17 @@ private void playMusic(String filePath) {
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
+
+        // Check if volume control is supported and set it
+        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            // Convert volume from linear scale to dB
+            float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
+            gainControl.setValue(dB);
+        } else {
+            System.out.println("Volume control not supported");
+        }
+
         clip.start();
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     } catch (UnsupportedAudioFileException e) {
