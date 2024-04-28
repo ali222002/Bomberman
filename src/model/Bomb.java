@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javax.swing.Timer;
 
@@ -93,7 +98,7 @@ public class Bomb extends ActiveObject {
     // Remove monsters
     removeObjectsAt(monsters, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
     
-    
+    playMusic("src/sounds/explosion.wav");
     
     
     }
@@ -118,6 +123,30 @@ public class Bomb extends ActiveObject {
         }
         return objectRemoved;
     }
+    
+    private void playMusic(String filePath) {
+    try {
+        // Directly use a file path
+        File audioFile = new File(filePath);
+        if (!audioFile.exists()) {
+            System.out.println("File not found: " + filePath);
+            return;
+        }
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioIn);
+        clip.start();
+    } catch (UnsupportedAudioFileException e) {
+        System.out.println("Unsupported audio file: " + e);
+        e.printStackTrace();
+    } catch (IOException e) {
+        System.out.println("IO error: " + e);
+        e.printStackTrace();
+    } catch (LineUnavailableException e) {
+        System.out.println("Line unavailable: " + e);
+        e.printStackTrace();
+    }
+}
         
 }
 
