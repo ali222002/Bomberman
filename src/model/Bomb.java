@@ -74,56 +74,70 @@ public class Bomb extends ActiveObject {
         return frames;
     }
 
-    public void explode(ArrayList<Box> boxes, ArrayList<Player> players, ArrayList<Monster> monsters,
-            ArrayList<Wall> walls, ArrayList<Explosion> effects) {
-        int up_x = _x;
-        int up_y = _y - 40;
-        int bottom_x = _x;
-        int bottom_y = _y + 40;
-        int left_x = _x - 40;
-        int left_y = _y;
-        int right_x = _x + 40;
-        int right_y = _y;
+    public void explode(ArrayList<Box> boxes, ArrayList<Player> players, ArrayList<Monster> monsters, ArrayList<Wall> walls, ArrayList<Explosion> effects) {
+        int range = owner.getBombRange(); // Get the bomb range from the owner
+    
         Image[] frames = loadExplosionFrames();
-        // Remove boxes
-        if (removeObjectsAt(boxes, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y)) {
-            effects.add(new Explosion(up_x, up_y, 40, 40, frames));
-            effects.add(new Explosion(bottom_x, bottom_y, 40, 40, frames));
-            effects.add(new Explosion(left_x, left_y, 40, 40, frames));
-            effects.add(new Explosion(right_x, right_y, 40, 40, frames));
+    
+        // Define directions for iteration
+        int[][] directions = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} }; // Up, down, left, right
+    
+        for (int[] dir : directions) {
+            int dx = dir[0] * 40; // x step
+            int dy = dir[1] * 40; // y step
+    
+            for (int i = 1; i <= range / 40; i++) { // Iterate over each step within the range
+                int newX = _x + dx * i;
+                int newY = _y + dy * i;
+    
+                // Define the current explosion area
+                Rectangle explosionArea = new Rectangle(newX, newY, 40, 40);
+    
+                // Check for walls
+                boolean blockedByWall = checkForWalls(walls, explosionArea);
+    
+                // Check and remove boxes and other objects
+                boolean blockedByBox = removeObjectsAt(boxes, explosionArea);
+                removeObjectsAt(players, explosionArea);
+                removeObjectsAt(monsters, explosionArea);
+    
+                effects.add(new Explosion(newX, newY, 40, 40, frames));
+    
+                if (blockedByWall || blockedByBox) break; // Stop further progression in this direction if blocked
+            }
         }
-
-        // Remove players
-        removeObjectsAt(players, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
-
-        // Remove monsters
-        removeObjectsAt(monsters, up_x, up_y, bottom_x, bottom_y, left_x, left_y, right_x, right_y);
-
+    
         playMusic("src/sounds/explosion.wav");
-
     }
-
-    private <T extends ActiveObject> boolean removeObjectsAt(ArrayList<T> objects, int up_x, int up_y, int bottom_x,
-            int bottom_y, int left_x, int left_y, int right_x, int right_y) {
-        Rectangle explosionAreaUp = new Rectangle(up_x, up_y, 40, 40);
-        Rectangle explosionAreaDown = new Rectangle(bottom_x, bottom_y, 40, 40);
-        Rectangle explosionAreaLeft = new Rectangle(left_x, left_y, 40, 40);
-        Rectangle explosionAreaRight = new Rectangle(right_x, right_y, 40, 40);
-
+    
+    private boolean checkForWalls(ArrayList<Wall> walls, Rectangle explosionArea) {
+        for (Wall wall : walls) {
+            Rectangle wallRect = new Rectangle(wall._x, wall._y, wall._width, wall._height);
+            if (explosionArea.intersects(wallRect)) {
+                return true; // Wall found, blocking the path
+            }
+        }
+        return false; // No wall found
+    }
+    
+    private <T extends ActiveObject> boolean removeObjectsAt(ArrayList<T> objects, Rectangle explosionArea) {
         boolean objectRemoved = false;
         Iterator<T> iterator = objects.iterator();
+    
         while (iterator.hasNext()) {
             T object = iterator.next();
             Rectangle objectRect = new Rectangle(object._x, object._y, object._width, object._height);
-
-            if (explosionAreaUp.intersects(objectRect) || explosionAreaDown.intersects(objectRect) ||
-                    explosionAreaLeft.intersects(objectRect) || explosionAreaRight.intersects(objectRect)) {
+    
+            if (explosionArea.intersects(objectRect)) {
                 iterator.remove();
                 objectRemoved = true;
             }
         }
+    
         return objectRemoved;
     }
+    
+    
 
     private void playMusic(String filePath) {
         try {

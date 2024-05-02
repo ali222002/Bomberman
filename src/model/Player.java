@@ -21,8 +21,8 @@ class Player extends ActiveObject {
 
     public Direction direction;
 
-    private double speed_on_x_axis = 0;
-    private double speed_on_y_axis = 0;
+    public double speed_on_x_axis = 0;
+    public double speed_on_y_axis = 0;
 
     private boolean player_moves_on_x = false;
     private boolean player_moves_on_y = false;
@@ -39,8 +39,10 @@ class Player extends ActiveObject {
     //private int startRange = 1;
     
     // METHODS
+    //PowerUps
     private int AllowedBombCnt;
     private int currentBombsOnField;
+    private int bombRange;
     
     public Player(int x, int y, int w, int h, Image[] animationFramesUp, Image[] animationFramesDown, Image[] animationFramesLeft, Image[] animationFramesRight) {
         super(x, y, w, h, animationFramesRight[0]); // Default image
@@ -50,6 +52,7 @@ class Player extends ActiveObject {
         this.animationFramesRight = animationFramesRight;
         this.AllowedBombCnt = 1;
         this.currentBombsOnField = 0;
+        this.bombRange = 40;
     }
 
     // GETTERS AND SETTERS
@@ -153,6 +156,15 @@ class Player extends ActiveObject {
     public void increaseAllowedBombs() {
         AllowedBombCnt++;
     }
+
+    public void increaseBombRange() {
+        bombRange += 40;
+    }
+
+    public int getBombRange() {
+        return bombRange;
+    }
+
 
     public Ground whereAmI(Level _level) {
 

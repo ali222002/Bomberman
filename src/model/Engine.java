@@ -500,131 +500,139 @@ public class Engine extends JPanel {
 
     class FrameUpdate implements ActionListener {
 
-        public JPanel panel;
-
+        private JPanel panel;
+    
         FrameUpdate(JPanel panel) {
             this.panel = panel;
         }
-
+    
         @Override
         public void actionPerformed(ActionEvent ae) {
-
             if (!game_paused) {
-
-                for (int q = 0; q < monsters.size(); q++) {
-
-                    monsters.get(q).move();
-                    for (int i = 0; i < players.size(); i++) {
-                        if (monsters.get(q).did_hit(players.get(i))) {
-                            // String user_name = JOptionPane.showInputDialog("MONSTER KILLED YOU!!!! " +
-                            // (point) + " POINTS EARNED\n Please give your name:","");
-                            players.remove(i);
-                        }
-                    }
-
-                    for (int i = 0; i < DroppedBombs.size(); i++) {
-                        if (monsters.get(q).did_hit(DroppedBombs.get(i))) {
-                            monsters.get(q).ChangeDirection(_level);
-                        }
-                    }
-
-                    if (_level.did_hit(monsters.get(q))) {
-                        monsters.get(q).ChangeDirection(_level);
-                    }
-
-                    for (int i = 0; i < monsters.size(); i++) {
-                        if (i != q) {
-                            if (monsters.get(q).did_hit(monsters.get(i))) {
-                                monsters.get(q).ChangeDirection(_level);
-                            }
-                        }
-                    }
-
-                }
-
-                Iterator<Bomb> iterator = DroppedBombs.iterator();
-
-                while (iterator.hasNext()) {
-                    Bomb bomb = iterator.next();
-                    long elapsedTime = System.currentTimeMillis() - bomb.timestamp;
-                    if (elapsedTime >= 3000) { // 90 seconds in milliseconds
-                        System.out.println(DroppedBombs.size());
-                        // bomb.owner.canDropBomb = true; // Set canDropBomb back to true for the player who dropped the
-                        //                                // bomb
-                        bomb.owner.bombExploded();
-                        Image[] explosionFrames = loadExplosionFrames();
-                        _explosions.add(new Explosion(bomb._x, bomb._y, 40, 40, explosionFrames));
-                        bomb.explode(_level.boxes, players, monsters, _level.walls, _explosions);
-                        iterator.remove(); // Use the iterator's remove method
+                updateMonsters();
+                handleBombs();
+                updatePlayers();
+                handleExplosions();
+    
+                repaint();
+            }
+        }
+    
+        private void updateMonsters() {
+            for (int q = 0; q < monsters.size(); q++) {
+                Monster monster = monsters.get(q);
+                monster.move();
+    
+                // Check monster-player collisions
+                Iterator<Player> playerIterator = players.iterator();
+                while (playerIterator.hasNext()) {
+                    Player player = playerIterator.next();
+                    if (monster.did_hit(player)) {
+                        players.remove(player); // Remove the player
+                        break; // Stop checking further collisions for this monster
                     }
                 }
-
-                // System.out.println(tempcnt);
-                for (int i = 0; i < players.size(); i++) {
-                    if (_level.did_hit(players.get(i))) {
-                        players.get(i).set_x_speed(0);
-                        players.get(i).set_y_speed(0);
-                    }
-                    for (int j = 0; j < _level.powerups.size(); j++) {
-                        if (players.get(i).did_hit(_level.powerups.get(j))) {
-
-                            players.get(i).powerups.add(_level.powerups.get(j));
-                            _level.powerups.remove(j);
-                            playSound("src/sounds/boostUP.wav");
-                            if (_level.powerups.get(j) instanceof MoreBombPowerup) {
-                                players.get(i).increaseAllowedBombs(); 
-                                System.out.println("Picked up a MoreBombPowerup!");
-                            } if (_level.powerups.get(j) instanceof RangePowerup) {
-                                System.out.println("Picked up a RangePowerup!");
-                            } else {
-                                System.out.println("Picked up a generic power-up!");
-                            }
-                        }
-                    }
-                    if (players != null && !players.isEmpty()) {
-                        players.get(i).move();
-                    }
-                    // else if (round_count > 0) {
-                    //
-                    // JOptionPane.showMessageDialog(null,
-                    // "GAME OVER rounds left: " + round_count + " points earned: " + point);
-                    // try {
-                    // restart_game();
-                    // } catch (IOException ex) {
-                    // Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE,
-                    // null, ex);
-                    // }
-                    // round_count--;
-                    // } else if (round_count == 0) {
-                    // JOptionPane.showMessageDialog(null, "GAME OVER points earned: NO MORE ROUNDS
-                    // LEFT" + point);
-                    // System.exit(0);
-                    // }
-
-                    for (Explosion explosion : _explosions) {
-                        explosion.update();
+    
+                // Check monster-bomb collisions
+                for (Bomb bomb : DroppedBombs) {
+                    if (monster.did_hit(bomb)) {
+                        monster.ChangeDirection(_level);
+                        break;
                     }
                 }
-
-                if (round_count == 0) {
-                    JOptionPane.showMessageDialog(null, "GAME OVER");
-                    System.exit(0);
-                } else if (players.size() == 0 && round_count > 0) {
+    
+                // Check monster-level collisions
+                if (_level.did_hit(monster)) {
+                    monster.ChangeDirection(_level);
+                }
+    
+                // Check monster-monster collisions
+                for (int i = 0; i < monsters.size(); i++) {
+                    if (i != q && monster.did_hit(monsters.get(i))) {
+                        monster.ChangeDirection(_level);
+                    }
+                }
+            }
+        }
+    
+        private void handleBombs() {
+            Iterator<Bomb> iterator = DroppedBombs.iterator();
+            while (iterator.hasNext()) {
+                Bomb bomb = iterator.next();
+                long elapsedTime = System.currentTimeMillis() - bomb.timestamp;
+    
+                if (elapsedTime >= 3000) {
+                    bomb.owner.bombExploded(); // Decrease player's bomb count
+                    _explosions.add(new Explosion(bomb._x, bomb._y, 40, 40, loadExplosionFrames()));
+                    bomb.explode(_level.boxes, players, monsters, _level.walls, _explosions);
+                    iterator.remove(); // Remove the bomb
+                }
+            }
+        }
+    
+        private void updatePlayers() {
+            Iterator<Player> playerIterator = players.iterator();
+            while (playerIterator.hasNext()) {
+                Player player = playerIterator.next();
+    
+                // Check player-level collisions
+                if (_level.did_hit(player)) {
+                    player.set_x_speed(0);
+                    player.set_y_speed(0);
+                }
+    
+                // Check player-powerup collisions
+                Iterator<Powerups> powerupIterator = _level.powerups.iterator();
+                while (powerupIterator.hasNext()) {
+                    Powerups powerup = powerupIterator.next();
+                    if (player.did_hit(powerup)) {
+                        player.powerups.add(powerup);
+                        powerupIterator.remove(); // Remove powerup from the level
+                        playSound("src/sounds/boostUP.wav");
+    
+                        if (powerup instanceof MoreBombPowerup) {
+                            player.increaseAllowedBombs(); // Increase allowed bombs
+                            System.out.println("Picked up a MoreBombPowerup!");
+                        } else if (powerup instanceof RangePowerup) {
+                            player.increaseBombRange(); // Increase bomb range
+                            System.out.println("Picked up a RangePowerup!");
+                        } else {
+                            System.out.println("Picked up a generic power-up!");
+                        }
+                    }
+                }
+    
+                player.move(); // Update player's position
+            }
+    
+            // Check round/game over conditions
+            if (players.isEmpty()) {
+                if (round_count > 0) {
                     JOptionPane.showMessageDialog(null, "Round OVER");
                     try {
                         restart_game();
                     } catch (IOException ex) {
                         Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
                     }
+                } else {
+                    JOptionPane.showMessageDialog(null, "GAME OVER");
+                    System.exit(0);
                 }
-                // if (players.get(0).powerups.size() >= 1){
-                // System.out.println(players.get(0).powerups.size());
-                // }
             }
-
-            repaint();
         }
-
+    
+        private void handleExplosions() {
+            Iterator<Explosion> iterator = _explosions.iterator();
+            while (iterator.hasNext()) {
+                Explosion explosion = iterator.next();
+                explosion.update();
+    
+                if (explosion.isFinished()) {
+                    iterator.remove();
+                }
+            }
+        }
     }
+    
 
 }
