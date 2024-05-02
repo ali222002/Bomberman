@@ -12,15 +12,15 @@ public class Monster extends ActiveObject {
         UP, DOWN, LEFT, RIGHT
     }
 
-    private Direction direction = Direction.RIGHT;
+    public Direction direction = Direction.RIGHT;
     private Image[] animationFramesUp;
     private Image[] animationFramesDown;
     private Image[] animationFramesLeft;
     private Image[] animationFramesRight;
     private int currentFrame = 0;
     // ATTRIBUTES
-    private double x_speed = 1;
-    private double y_speed;
+    public double x_speed = 1;
+    public double y_speed;
     private boolean if_x = true;
     private boolean if_y = false;
     // PUBLIC ATTRIBUTES
