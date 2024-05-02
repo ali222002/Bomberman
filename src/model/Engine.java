@@ -18,11 +18,7 @@ import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import database.DB;
 import model.Player.Direction;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
@@ -65,10 +61,10 @@ public class Engine extends JPanel {
     // private Bomb _bomb;
     private int bombcnt = 0;
 
-        private static Clip musicClip;
+    private static Clip musicClip;
     private JButton toggleMusicButton;
     private boolean musicPlaying = false;
-    
+
     private ArrayList<Player> players = new ArrayList();
     private ArrayList<Monster> monsters = new ArrayList();
     private int monster_count = 3;
@@ -137,26 +133,24 @@ public class Engine extends JPanel {
 
         return frames;
     }
-    public void displayUIELements(){
-        
+
+    public void displayUIELements() {
+
     }
+
     public Engine(int player_count, int round_count, int id_level) throws IOException, JSONException {
         super();
-        
+
         this.id_level = id_level;
         this.player_count = player_count;
         this.round_count = round_count;
-        
-        Image image1 = new ImageIcon("src/media/black.png").getImage();
-        gameObj = new ActiveObject( 760 ,  0, 250, 800, image1);
 
-        
-        
-        
+        Image image1 = new ImageIcon("src/media/black.png").getImage();
+        gameObj = new ActiveObject(760, 0, 250, 800, image1);
+
         _level = new Level("src/levels/level" + id_level + ".txt");
-         String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
-         JSONObject obj = new JSONObject(jsonData);
-         
+        String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
+        JSONObject obj = new JSONObject(jsonData);
 
         for (int i = 0; i < monster_count; i++) {
             generate_Monsters(_level);
@@ -164,8 +158,8 @@ public class Engine extends JPanel {
         int cc = 10;
         for (int i = 1; i <= player_count; i++) {
 
-            Image playerImage = new ImageIcon("src/media/player"+ i +".png").getImage();
-            playerObj = new ActiveObject( 770 ,  cc, 150, 100, playerImage);
+            Image playerImage = new ImageIcon("src/media/player" + i + ".png").getImage();
+            playerObj = new ActiveObject(770, cc, 150, 100, playerImage);
             playersUI.add(playerObj);
             cc += 110;
             JSONObject playerControls = obj.getJSONObject("player" + i);
@@ -175,30 +169,30 @@ public class Engine extends JPanel {
             String right = playerControls.getString("right");
             String bomb = playerControls.getString("bomb");
 
-        // Load player frames
-        Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
-        Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
-        Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
-        Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
-        
-        int posX = 0;
+            // Load player frames
+            Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
+            Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
+            Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
+            Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
+
+            int posX = 0;
             int posY = 0;
-            if (i == 1){
-                posX = 40; 
-                posY = 40; 
-            }else if(i ==2){
+            if (i == 1) {
                 posX = 40;
-                posY = 680; 
-            }else if(i ==3 ){
+                posY = 40;
+            } else if (i == 2) {
+                posX = 40;
+                posY = 680;
+            } else if (i == 3) {
                 posX = 680;
                 posY = 680;
             }
 
-
-            Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
+            Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
             players.add(_player);
             setControls(_player, up, down, left, right, bomb);
-    }
+        }
 
         // restart_game();
 
@@ -210,22 +204,22 @@ public class Engine extends JPanel {
         int delay = 1000 / frameRate;
         _timer = new Timer(delay, new FrameUpdate(this));
         _timer.start();
-        
+
         initMusic("src/sounds/music.wav", 0.05f);
         addToggleMusicButton();
         setLayout(null);
 
     }
-    
-private void initMusic(String filePath, float volume) {
+
+    private void initMusic(String filePath, float volume) {
         try {
             File audioFile = new File(filePath);
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
             musicClip = AudioSystem.getClip();
             musicClip.open(audioIn);
-            setVolume(volume);  // Sets volume after opening the clip
+            setVolume(volume); // Sets volume after opening the clip
             musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-            musicPlaying = true;  // Assuming music starts playing automatically
+            musicPlaying = true; // Assuming music starts playing automatically
         } catch (Exception e) {
             e.printStackTrace();
             musicPlaying = false;
@@ -243,47 +237,45 @@ private void initMusic(String filePath, float volume) {
     }
 
     private void addToggleMusicButton() {
-    ImageIcon icon = new ImageIcon("src/media/sound.png");
-    toggleMusicButton = new JButton(icon);
-    toggleMusicButton.setBorderPainted(false); // No border painting
-    toggleMusicButton.setContentAreaFilled(false); // No background fill
-    toggleMusicButton.setFocusPainted(false); // No focus border
-    toggleMusicButton.setOpaque(false);
-    toggleMusicButton.addActionListener(e -> {
-    new Thread(() -> {
-        if (musicPlaying) {
-            musicClip.stop();
-            musicPlaying = false;
-        } else {
-            musicClip.start();
-            musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-            musicPlaying = true;
-        }
-        SwingUtilities.invokeLater(() -> {
-            Engine.this.requestFocus();
+        ImageIcon icon = new ImageIcon("src/media/sound.png");
+        toggleMusicButton = new JButton(icon);
+        toggleMusicButton.setBorderPainted(false); // No border painting
+        toggleMusicButton.setContentAreaFilled(false); // No background fill
+        toggleMusicButton.setFocusPainted(false); // No focus border
+        toggleMusicButton.setOpaque(false);
+        toggleMusicButton.addActionListener(e -> {
+            new Thread(() -> {
+                if (musicPlaying) {
+                    musicClip.stop();
+                    musicPlaying = false;
+                } else {
+                    musicClip.start();
+                    musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+                    musicPlaying = true;
+                }
+                SwingUtilities.invokeLater(() -> {
+                    Engine.this.requestFocus();
+                });
+            }).start();
         });
-    }).start();
-});
 
-    // position and size of the button
-    toggleMusicButton.setBounds(900, 650, 80, 80);
-    add(toggleMusicButton); // Adds the button to the panel
-}
-
-private void playSound(String filePath) {
-    try {
-        File audioFile = new File(filePath);
-        AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
-        Clip clip = AudioSystem.getClip();
-        clip.open(audioIn);
-        clip.start();
-    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-        System.out.println("Error with playing sound.");
-        e.printStackTrace();
+        // position and size of the button
+        toggleMusicButton.setBounds(900, 650, 80, 80);
+        add(toggleMusicButton); // Adds the button to the panel
     }
-}
 
-    
+    private void playSound(String filePath) {
+        try {
+            File audioFile = new File(filePath);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            System.out.println("Error with playing sound.");
+            e.printStackTrace();
+        }
+    }
 
     public void setControls(Player player, String up, String down, String left, String right, String bombdrop) {
 
@@ -381,7 +373,7 @@ private void playSound(String filePath) {
     }
 
     public void restart_game() throws IOException {
-        
+
         try {
             _level = new Level("src/levels/level" + id_level + ".txt");
         } catch (IOException e) {
@@ -397,28 +389,29 @@ private void playSound(String filePath) {
             generate_Monsters(_level);
         }
         for (int i = 1; i <= player_count; i++) {
-           String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
-           JSONObject obj = new JSONObject(jsonData);
-           JSONObject playerControls = obj.getJSONObject("player" + i);
-           String up = playerControls.getString("up");
-           String down = playerControls.getString("down");
-           String left = playerControls.getString("left");
-           String right = playerControls.getString("right");
-           String bomb = playerControls.getString("bomb");
+            String jsonData = new String(Files.readAllBytes(Paths.get("src/database/controls.json")));
+            JSONObject obj = new JSONObject(jsonData);
+            JSONObject playerControls = obj.getJSONObject("player" + i);
+            String up = playerControls.getString("up");
+            String down = playerControls.getString("down");
+            String left = playerControls.getString("left");
+            String right = playerControls.getString("right");
+            String bomb = playerControls.getString("bomb");
 
-           // Load player frames
-           Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
-           Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
-           Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
-           Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
+            // Load player frames
+            Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + i));
+            Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + i));
+            Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + i));
+            Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
 
-           // Calculate initial positions based on player index (simplified version here)
-           int posX = 40 + (i-1) * 320; // Modify according to your game layout
-           int posY = 40 + (i-1) * 320; // Modify according to your game layout
+            // Calculate initial positions based on player index (simplified version here)
+            int posX = 40 + (i - 1) * 320; // Modify according to your game layout
+            int posY = 40 + (i - 1) * 320; // Modify according to your game layout
 
-           Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft, playerFramesRight);
-           players.add(_player);
-           setControls(_player, up, down, left, right, bomb);
+            Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                    playerFramesRight);
+            players.add(_player);
+            setControls(_player, up, down, left, right, bomb);
         }
     }
 
@@ -469,15 +462,14 @@ private void playSound(String filePath) {
     protected void paintComponent(Graphics grphcs) {
 
         super.paintComponent(grphcs);
-        
+
         gameObj.drawObject(grphcs);
-        
+
         // grphcs.drawImage(bg, 0, 0, 800, 800, null);
         _level.placeGrounds(grphcs);
         _level.placeWalls(grphcs);
         _level.placePowerups(grphcs);
         _level.placeBoxes(grphcs);
-
 
         for (int i = 0; i < players.size(); i++) {
             players.get(i).drawObject(grphcs);
@@ -516,7 +508,7 @@ private void playSound(String filePath) {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            
+
             if (!game_paused) {
 
                 for (int q = 0; q < monsters.size(); q++) {
@@ -557,8 +549,9 @@ private void playSound(String filePath) {
                     long elapsedTime = System.currentTimeMillis() - bomb.timestamp;
                     if (elapsedTime >= 3000) { // 90 seconds in milliseconds
                         System.out.println(DroppedBombs.size());
-                        bomb.owner.canDropBomb = true; // Set canDropBomb back to true for the player who dropped the
-                                                       // bomb
+                        // bomb.owner.canDropBomb = true; // Set canDropBomb back to true for the player who dropped the
+                        //                                // bomb
+                        bomb.owner.bombExploded();
                         Image[] explosionFrames = loadExplosionFrames();
                         _explosions.add(new Explosion(bomb._x, bomb._y, 40, 40, explosionFrames));
                         bomb.explode(_level.boxes, players, monsters, _level.walls, _explosions);
@@ -572,56 +565,66 @@ private void playSound(String filePath) {
                         players.get(i).set_x_speed(0);
                         players.get(i).set_y_speed(0);
                     }
-                    for (int j = 0; j < _level.powerups.size(); j++){
-                        if (players.get(i).did_hit(_level.powerups.get(j))){
-                            
+                    for (int j = 0; j < _level.powerups.size(); j++) {
+                        if (players.get(i).did_hit(_level.powerups.get(j))) {
+
                             players.get(i).powerups.add(_level.powerups.get(j));
                             _level.powerups.remove(j);
                             playSound("src/sounds/boostUP.wav");
+                            if (_level.powerups.get(j) instanceof MoreBombPowerup) {
+                                players.get(i).increaseAllowedBombs(); 
+                                System.out.println("Picked up a MoreBombPowerup!");
+                            } if (_level.powerups.get(j) instanceof RangePowerup) {
+                                System.out.println("Picked up a RangePowerup!");
+                            } else {
+                                System.out.println("Picked up a generic power-up!");
+                            }
                         }
                     }
                     if (players != null && !players.isEmpty()) {
                         players.get(i).move();
-                      } 
-//                          else if (round_count > 0) {
-//
-//                        JOptionPane.showMessageDialog(null,
-//                                "GAME OVER rounds left: " + round_count + " points earned: " + point);
-//                        try {
-//                            restart_game();
-//                        } catch (IOException ex) {
-//                            Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//                        }
-//                        round_count--;
-//                    } else if (round_count == 0) {
-//                        JOptionPane.showMessageDialog(null, "GAME OVER points earned: NO MORE ROUNDS LEFT" + point);
-//                        System.exit(0);
-//                    }
+                    }
+                    // else if (round_count > 0) {
+                    //
+                    // JOptionPane.showMessageDialog(null,
+                    // "GAME OVER rounds left: " + round_count + " points earned: " + point);
+                    // try {
+                    // restart_game();
+                    // } catch (IOException ex) {
+                    // Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE,
+                    // null, ex);
+                    // }
+                    // round_count--;
+                    // } else if (round_count == 0) {
+                    // JOptionPane.showMessageDialog(null, "GAME OVER points earned: NO MORE ROUNDS
+                    // LEFT" + point);
+                    // System.exit(0);
+                    // }
 
                     for (Explosion explosion : _explosions) {
                         explosion.update();
                     }
                 }
-                
-                if(round_count == 0){
+
+                if (round_count == 0) {
                     JOptionPane.showMessageDialog(null, "GAME OVER");
                     System.exit(0);
-                }else if (players.size() == 0 && round_count > 0) {
-                            JOptionPane.showMessageDialog(null, "Round OVER");
-                        try {
-                            restart_game();
-                        } catch (IOException ex) {
-                            Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                        }
+                } else if (players.size() == 0 && round_count > 0) {
+                    JOptionPane.showMessageDialog(null, "Round OVER");
+                    try {
+                        restart_game();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                    }
                 }
-//                if (players.get(0).powerups.size() >= 1){
-//                    System.out.println(players.get(0).powerups.size());
-//                }
+                // if (players.get(0).powerups.size() >= 1){
+                // System.out.println(players.get(0).powerups.size());
+                // }
             }
 
             repaint();
         }
 
     }
-    
+
 }

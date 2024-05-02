@@ -5,13 +5,13 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
-class Player extends ActiveObject{
+class Player extends ActiveObject {
 
     public enum Direction {
         UP, DOWN, LEFT, RIGHT
     }
-    
-    //ATTRIBUTES
+
+    // ATTRIBUTES
 
     private Image[] animationFramesUp;
     private Image[] animationFramesDown;
@@ -23,24 +23,24 @@ class Player extends ActiveObject{
 
     private double speed_on_x_axis = 0;
     private double speed_on_y_axis = 0;
-    
+
     private boolean player_moves_on_x = false;
     private boolean player_moves_on_y = false;
-    
-    
+
     public String tends_to_move_direction = "x";
-    public double tend_value =0;
-    
-    
-    
+    public double tend_value = 0;
+
     public boolean canDropBomb = true;
-    
+
     public Bomb bomb;
     public ArrayList<Powerups> powerups = new ArrayList<Powerups>();
-    //public ArrayList<Bomb> playersBombs = new ArrayList();
+    // public ArrayList<Bomb> playersBombs = new ArrayList();
+    
+    //private int startRange = 1;
     
     // METHODS
-   
+    private int AllowedBombCnt;
+    private int currentBombsOnField;
     
     public Player(int x, int y, int w, int h, Image[] animationFramesUp, Image[] animationFramesDown, Image[] animationFramesLeft, Image[] animationFramesRight) {
         super(x, y, w, h, animationFramesRight[0]); // Default image
@@ -48,44 +48,58 @@ class Player extends ActiveObject{
         this.animationFramesDown = animationFramesDown;
         this.animationFramesLeft = animationFramesLeft;
         this.animationFramesRight = animationFramesRight;
+        this.AllowedBombCnt = 1;
+        this.currentBombsOnField = 0;
     }
-    //GETTERS AND SETTERS
-    public void set_x_speed(double speed_to_set) { 
-        
+
+    // GETTERS AND SETTERS
+    public void set_x_speed(double speed_to_set) {
+
         tend_value = speed_to_set;
         speed_on_x_axis = speed_to_set;
-        
+
         tends_to_move_direction = "x";
-        
+
         player_moves_on_x = true;
         player_moves_on_y = false;
     }
-    public void set_y_speed(double speed_to_set) { 
-        
+
+    public void set_y_speed(double speed_to_set) {
+
         tend_value = speed_to_set;
         speed_on_y_axis = speed_to_set;
-        
+
         tends_to_move_direction = "y";
-        
+
         player_moves_on_y = true;
         player_moves_on_x = false;
     }
-    
-    public double get_x_speed() { return speed_on_x_axis; }
-    public double get_y_speed() { return speed_on_y_axis; }
-    
-    
-    //MOVEMENT
-    public void move_x(){
-        if ((speed_on_x_axis > 0 && _x + _width <= 780) || (0 > speed_on_x_axis && _x > 0)) _x += speed_on_x_axis;
-        
+
+    public double get_x_speed() {
+        return speed_on_x_axis;
     }
-    public void move_y(){
-        if ((speed_on_y_axis > 0 && _y + _height  <= 780) || (0 > speed_on_y_axis && _y > 0)) _y += speed_on_y_axis;
+
+    public double get_y_speed() {
+        return speed_on_y_axis;
     }
-    public void move(){
-        if(player_moves_on_x == true) move_x();
-        else move_y();
+
+    // MOVEMENT
+    public void move_x() {
+        if ((speed_on_x_axis > 0 && _x + _width <= 780) || (0 > speed_on_x_axis && _x > 0))
+            _x += speed_on_x_axis;
+
+    }
+
+    public void move_y() {
+        if ((speed_on_y_axis > 0 && _y + _height <= 780) || (0 > speed_on_y_axis && _y > 0))
+            _y += speed_on_y_axis;
+    }
+
+    public void move() {
+        if (player_moves_on_x == true)
+            move_x();
+        else
+            move_y();
 
         currentFrame = (currentFrame + 1) % animationFramesRight.length; // Default length
         if (direction == Direction.UP) {
@@ -98,42 +112,46 @@ class Player extends ActiveObject{
             _image = animationFramesRight[currentFrame];
         }
     }
-  
-    public boolean did_win(){
-        
+
+    public boolean did_win() {
+
         return false;
     }
-    
+
     @Override
-    public boolean did_hit(ActiveObject hostileObject){
-        if(tends_to_move_direction.equals("x"))
-        {
-            
+    public boolean did_hit(ActiveObject hostileObject) {
+        if (tends_to_move_direction.equals("x")) {
+
             Rectangle player;
             Rectangle hostile_obj;
 
-            
-            player = new Rectangle(_x + (int)speed_on_x_axis , _y, _width,_height);
-            hostile_obj = new Rectangle(hostileObject._x, hostileObject._y, hostileObject._width, hostileObject._height);    
-            
+            player = new Rectangle(_x + (int) speed_on_x_axis, _y, _width, _height);
+            hostile_obj = new Rectangle(hostileObject._x, hostileObject._y, hostileObject._width,
+                    hostileObject._height);
+
             return player.intersects(hostile_obj);
-        }else
-        {
-            Rectangle player = new Rectangle(_x , _y+ (int) speed_on_y_axis, _width, _height);
-            Rectangle hostile_obj = new Rectangle(hostileObject._x, hostileObject._y, hostileObject._width, hostileObject._height);        
+        } else {
+            Rectangle player = new Rectangle(_x, _y + (int) speed_on_y_axis, _width, _height);
+            Rectangle hostile_obj = new Rectangle(hostileObject._x, hostileObject._y, hostileObject._width,
+                    hostileObject._height);
             return player.intersects(hostile_obj);
         }
     }
-    
-    
-    public boolean canDropbomb(){
-        return canDropBomb;
-        
+
+    public boolean canDropbomb() {
+        return currentBombsOnField < AllowedBombCnt; 
     }
 
     public void DropBomb() {
-     
-        canDropBomb = false;
+        currentBombsOnField++; 
+    }
+
+    public void bombExploded() {
+        currentBombsOnField--; 
+    }
+
+    public void increaseAllowedBombs() {
+        AllowedBombCnt++;
     }
 
     public Ground whereAmI(Level _level) {
@@ -159,12 +177,11 @@ class Player extends ActiveObject{
                 }
             }
 
-            
             if (this.did_hit(ground) && (isGroundFreeofB && isGroundFreeofW)) {
-               return ground;
+                return ground;
             }
         }
         return null;
     }
-    
+
 }
