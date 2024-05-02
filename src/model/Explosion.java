@@ -6,7 +6,7 @@ import java.awt.Image;
 public class Explosion {
     private int _x, _y, _width, _height;
     private Image[] _frames;
-    private int _currentFrame;
+    public int _currentFrame;
 
     public Explosion(int x, int y, int width, int height, Image[] frames) {
         _x = x;
