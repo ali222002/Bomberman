@@ -24,8 +24,8 @@ class Player extends ActiveObject {
     public double speed_on_x_axis = 0;
     public double speed_on_y_axis = 0;
 
-    private boolean player_moves_on_x = false;
-    private boolean player_moves_on_y = false;
+    public boolean player_moves_on_x = false;
+    public boolean player_moves_on_y = false;
 
     public String tends_to_move_direction = "x";
     public double tend_value = 0;
