@@ -10,6 +10,8 @@ before_script:
   - add-apt-repository -y ppa:openjdk-r/ppa
   - apt-get update -yqq
   - apt-get install -yqq openjdk-17-jdk ant junit4
+  - wget -P lib/ http://central.maven.org/maven2/junit/junit/4.13/junit-4.13.jar
+  - wget -P lib/ http://central.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
 
 # Build
 build_game:
@@ -22,4 +24,4 @@ build_game:
 test_model:
   stage: test
   script:
-    - ant test
+    - ant test -lib lib
