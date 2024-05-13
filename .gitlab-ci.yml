@@ -22,7 +22,7 @@ build_game:
 test_model:
   stage: test
   script:
-    - ant jar -lib lib
+    - ant test -lib jar
   artifacts:
     when: always
     reports:
