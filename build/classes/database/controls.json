@@ -1,0 +1,23 @@
+{
+    "player1": {
+        "left": "A",
+        "up": "W",
+        "right": "D",
+        "bomb": "SPACE",
+        "down": "S"
+    },
+    "player2": {
+        "left": "F",
+        "up": "T",
+        "right": "H",
+        "bomb": "B",
+        "down": "G"
+    },
+    "player3": {
+        "left": "J",
+        "up": "I",
+        "right": "L",
+        "bomb": "M",
+        "down": "K"
+    }
+}
