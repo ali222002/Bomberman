@@ -405,8 +405,18 @@ public class Engine extends JPanel {
             Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + i));
 
             // Calculate initial positions based on player index (simplified version here)
-            int posX = 40 + (i - 1) * 320; // Modify according to your game layout
-            int posY = 40 + (i - 1) * 320; // Modify according to your game layout
+            int posX = 0;
+            int posY = 0;
+            if (i == 1) {
+                posX = 40;
+                posY = 40;
+            } else if (i == 2) {
+                posX = 40;
+                posY = 680;
+            } else if (i == 3) {
+                posX = 680;
+                posY = 680;
+            }
 
             Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
                     playerFramesRight);

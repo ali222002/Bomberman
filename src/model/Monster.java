@@ -52,22 +52,44 @@ public class Monster extends ActiveObject {
         else
             ChangeDirection();
     }
-
+    
+    private int moveCounter = 0;
+    private int changeDirectionInterval = 10; // Change direction every 30 moves
+    private Random random = new Random();
+    
     public void move() {
-        if (if_x == true)
+        if (if_x) {
             move_x();
-        else
+        } else {
             move_y();
+        }
+        updateAnimationFrame();
 
+        // Increment counter and randomly change direction
+        moveCounter++;
+        if (moveCounter >= changeDirectionInterval) {
+            if (random.nextInt(100) < 30) {  // 30% chance to change direction
+                ChangeDirection();
+            }
+            moveCounter = 0; // Reset counter after changing direction or continuing
+        }
+    }
+
+    private void updateAnimationFrame() {
         currentFrame = (currentFrame + 1) % animationFramesRight.length; // Default length
-        if (direction == Direction.UP) {
-            _image = animationFramesUp[currentFrame];
-        } else if (direction == Direction.DOWN) {
-            _image = animationFramesDown[currentFrame];
-        } else if (direction == Direction.LEFT) {
-            _image = animationFramesLeft[currentFrame];
-        } else if (direction == Direction.RIGHT) {
-            _image = animationFramesRight[currentFrame];
+        switch (direction) {
+            case UP:
+                _image = animationFramesUp[currentFrame];
+                break;
+            case DOWN:
+                _image = animationFramesDown[currentFrame];
+                break;
+            case LEFT:
+                _image = animationFramesLeft[currentFrame];
+                break;
+            case RIGHT:
+                _image = animationFramesRight[currentFrame];
+                break;
         }
     }
 
