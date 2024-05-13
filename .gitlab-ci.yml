@@ -26,5 +26,5 @@ test_model:
   artifacts:
     when: always
     reports:
-      junit: test-output/*.xml
+      junit: build/test/results/*.xml
     expire_in: 1 week
