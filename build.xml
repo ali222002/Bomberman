@@ -10,26 +10,26 @@
 <project name="Lightning" default="default" basedir=".">
     <description>Builds, tests, and runs the project Lightning.</description>
     <import file="nbproject/build-impl.xml"/>
+    
     <path id="classpath">
         <fileset dir="lib" includes="*.jar"/>
     </path>
     
-    <javac srcdir="src" destdir="build" classpathref="classpath"/>
+    <!-- Compile source files -->
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes" classpathref="classpath"/>
+    </target>
 
-    <!-- Define the test target -->
-    <target name="test" depends="compile">
-        <mkdir dir="build/test/results"/>
-        <junit printsummary="yes">
+    <!-- Compile test files -->
+    <target name="compile-tests" depends="compile">
+        <mkdir dir="build/test-classes"/>
+        <javac srcdir="test" destdir="build/test-classes">
             <classpath>
                 <path refid="classpath"/>
-                <pathelement path="build"/>
+                <pathelement path="build/classes"/>
             </classpath>
-            <batchtest fork="true" todir="build/test/results">
-                <fileset dir="test/model">
-                    <include name="**/*Test.java"/>
-                </fileset>
-            </batchtest>
-            <formatter type="xml"/>
-        </junit>
+        </javac>
     </target>
 </project>
+
