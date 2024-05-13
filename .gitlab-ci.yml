@@ -1,44 +1,44 @@
-# This template will build and test your Java projects using Apache Ant.
-# For general Ant build and test information see: https://ant.apache.org/manual/
+# This CI configuration is for building and testing Java applications using Apache Ant on GitLab CI/CD.
 
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is analogous to the Maven template but adapted for Ant usage.
+stages:
+  - build
+  - test
 
-variables:
-  ANT_OPTS: >-
-    -Dhttps.protocols=TLSv1.2
-    -Djava.awt.headless=true
+before_script:
+  # Prepare the system and install necessary packages
+  - apt-get update -yqq
+  - apt-get install -yqq software-properties-common
+  - add-apt-repository -y ppa:openjdk-r/ppa
+  - apt-get update -yqq
+  - apt-get install -yqq openjdk-17-jdk ant junit4
 
-# Ant does not use a project-specific repository like Maven's .m2, but you can still cache
-# directories if needed (e.g., custom lib directories or directories holding dependencies).
+image: ubuntu:20.04
+
+# Cache dependencies to speed up builds
 cache:
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - lib/
     - build/
 
-# Use a Docker image that has Java and Ant installed.
-# For Docker image tags see https://hub.docker.com/_/openjdk or other images that include Ant and JDK.
-image: frekele/ant:1.10.5-jdk11
-
-# Build
-build-job:
+# Build stage: compiles the source code and builds the JAR file
+build_game:
   stage: build
   script:
-    - ant compile
+    - ant compile -lib lib
+    - ant jar -lib lib
   artifacts:
     paths:
       - build/
+      - dist/
 
-# Test
-test-job:
+# Test stage: executes tests and generates test reports
+test_model:
   stage: test
   script:
-    - ant test
+    - ant test -lib lib
   artifacts:
     reports:
-    junit:
-      - test-results/**/*.xml
+      junit: test-results/**/*.xml
 
-# The example assumes there's an existing build.xml that defines 'compile' and 'test' targets.
-# Make sure your build.xml is properly configured to handle these commands.
+# Ensuring that the build.xml file in your repository properly defines 'compile', 'jar', and 'test' targets.
