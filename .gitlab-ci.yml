@@ -22,4 +22,9 @@ build_game:
 test_model:
   stage: test
   script:
-    - ant jar -lib lib
+    - ant test -lib lib
+  artifacts:
+    when: always
+    reports:
+      junit: test-output/*.xml
+    expire_in: 1 week
