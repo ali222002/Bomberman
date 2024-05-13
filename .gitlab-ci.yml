@@ -22,4 +22,4 @@ build_game:
 test_model:
   stage: test
   script:
-    - ant test 
+    - ant jar -lib lib
