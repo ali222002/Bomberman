@@ -23,3 +23,10 @@ test_model:
   stage: test
   script:
     - ant test -lib lib
+  artifacts:
+    when: always
+    paths:
+      - build/test/results/
+    reports:
+      junit:
+        - build/test/results/*.xml
