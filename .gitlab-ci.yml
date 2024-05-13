@@ -1,28 +1,44 @@
-image: ubuntu:20.04
+# This template will build and test your Java projects using Apache Ant.
+# For general Ant build and test information see: https://ant.apache.org/manual/
 
-stages:
-  - build
-  - test
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is analogous to the Maven template but adapted for Ant usage.
 
-before_script:
-  - apt-get update -yqq
-  - apt-get install -yqq software-properties-common
-  - add-apt-repository -y ppa:openjdk-r/ppa
-  - apt-get update -yqq
-  - apt-get install -yqq openjdk-17-jdk ant junit4
+variables:
+  ANT_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Djava.awt.headless=true
+
+# Ant does not use a project-specific repository like Maven's .m2, but you can still cache
+# directories if needed (e.g., custom lib directories or directories holding dependencies).
+cache:
+  paths:
+    - lib/
+    - build/
+
+# Use a Docker image that has Java and Ant installed.
+# For Docker image tags see https://hub.docker.com/_/openjdk or other images that include Ant and JDK.
+image: frekele/ant:1.10.5-jdk11
 
 # Build
-build_game:
+build-job:
   stage: build
   script:
-    - ant compile -lib lib
-    - ant jar -lib lib
+    - ant compile
+  artifacts:
+    paths:
+      - build/
 
 # Test
-test_model:
+test-job:
   stage: test
   script:
-    - ant jar -lib lib
+    - ant test
   artifacts:
     reports:
-      junit: test-results/**/*.xml
+    junit:
+      - test-results/**/*.xml
+
+# The example assumes there's an existing build.xml that defines 'compile' and 'test' targets.
+# Make sure your build.xml is properly configured to handle these commands.
