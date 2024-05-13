@@ -1,7 +1,6 @@
 image: ubuntu:20.04
 
 stages:
-  - setup
   - build
   - test
 
@@ -10,35 +9,17 @@ before_script:
   - apt-get install -yqq software-properties-common
   - add-apt-repository -y ppa:openjdk-r/ppa
   - apt-get update -yqq
-  - apt-get install -yqq openjdk-17-jdk ant
+  - apt-get install -yqq openjdk-17-jdk ant junit4
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - lib/
-
-setup_dependencies:
-  stage: setup
-  script:
-    - ant download
-  artifacts:
-    paths:
-      - lib/
-
+# Build
 build_game:
   stage: build
   script:
-    - ant compile
-    - ant jar
-  artifacts:
-    paths:
-      - build/
-      - dist/
+    - ant compile -lib lib
+    - ant jar -lib lib
 
+# Test
 test_model:
   stage: test
   script:
-    - ant test
-  artifacts:
-    reports:
-      junit: test-results/**/*.xml
+    - ant test -lib lib
