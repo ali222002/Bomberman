@@ -25,6 +25,8 @@ test_model:
     - ant test -lib jar
   artifacts:
     when: always
+    paths:
+      - build/test/results/*.xml
     reports:
       junit: build/test/results/*.xml
     expire_in: 1 week
