@@ -53,7 +53,7 @@ class GameSetup {
         title_mapNameLabel.setForeground(Color.black);
         title_mapNameLabel.setFont(titleFont);
         
-        String[] maps = {"1", "2", "3"};
+        String[] maps = {"1", "2", "3", "4"};
         mapSelector = new JComboBox<>(maps);
         mapSelector.setFont(normalFont);
         mapSelectorPanel = new JPanel();
@@ -69,7 +69,7 @@ class GameSetup {
         title_playerNameLabel.setForeground(Color.black);
         title_playerNameLabel.setFont(titleFont);
         
-        Integer[] playerNumbers = {1, 2, 3};
+        Integer[] playerNumbers = {2, 3};
         playerSelector = new JComboBox<>(playerNumbers);
         playerSelector.setFont(normalFont);
         playerSelectorPanel = new JPanel();
@@ -106,7 +106,7 @@ class GameSetup {
                 int roundCount = (Integer) roundsSelector.getSelectedItem();
                 String m = mapSelector.getSelectedItem().toString();
                 try {
-                    StartGame startgame = new StartGame(playerCount, roundCount, Integer.parseInt(m));
+                    StartGame startgame = new StartGame(playerCount, roundCount-1, Integer.parseInt(m));
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
