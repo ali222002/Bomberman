@@ -22,7 +22,7 @@ build_game:
 test_model:
   stage: test
   script:
-    - ant test -lib jar
+    - ant jar -lib lib
   artifacts:
     reports:
       junit: test-results/**/*.xml
