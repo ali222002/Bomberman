@@ -1,3 +1,4 @@
+image: ubuntu:20.04
 # This CI configuration is for building and testing Java applications using Apache Ant on GitLab CI/CD.
 
 stages:
@@ -10,16 +11,10 @@ before_script:
   - apt-get install -yqq software-properties-common
   - add-apt-repository -y ppa:openjdk-r/ppa
   - apt-get update -yqq
-  - apt-get install -yqq openjdk-17-jdk ant junit4
+  - apt-get install -yqq openjdk-17-jdk
+  - wget -O lib/junit.jar https://repo1.maven.org/maven2/junit/junit/4.13/junit-4.13.jar
+  - wget -O lib/hamcrest-core.jar https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
 
-image: ubuntu:20.04
-
-# Cache dependencies to speed up builds
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - lib/
-    - build/
 
 # Build stage: compiles the source code and builds the JAR file
 build_game:
@@ -40,5 +35,3 @@ test_model:
   artifacts:
     reports:
       junit: test-results/**/*.xml
-
-# Ensuring that the build.xml file in your repository properly defines 'compile', 'jar', and 'test' targets.
