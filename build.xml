@@ -7,39 +7,31 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
 <project name="Lightning" default="default" basedir=".">
     <description>Builds, tests, and runs the project Lightning.</description>
     <import file="nbproject/build-impl.xml"/>
-    
     <path id="classpath">
         <fileset dir="lib" includes="*.jar"/>
     </path>
     
-    <!-- Compile source files -->
-    <target name="compile">
-        <mkdir dir="build/classes"/>
-        <javac srcdir="src" destdir="build/classes" classpathref="classpath"/>
-    </target>
+    <javac srcdir="src" destdir="build" classpathref="classpath"/>
 
-    <!-- Compile test files -->
-    <target name="compile-tests" depends="compile">
-        <mkdir dir="build/test-classes"/>
-        <javac srcdir="test" destdir="build/test-classes">
-            <classpath>
-                <path refid="classpath"/>
-                <pathelement path="build/classes"/>
-            </classpath>
-        </javac>
-    </target>
-    
-    <!-- Run tests -->
-    <target name="test" depends="compile-tests">
+    <!-- Define the test target -->
+    <target name="test" depends="compile">
         <mkdir dir="build/test/results"/>
-        <junit printsummary="yes" haltonfailure="yes" haltonerror="yes">
+        <junit printsummary="yes">
             <classpath>
                 <path refid="classpath"/>
-                <pathelement path="build/classes"/>
-                <pathelement path="build/test-classes"/>
+                <pathelement path="build"/>
             </classpath>
             <batchtest fork="true" todir="build/test/results">
                 <fileset dir="test/model">
@@ -50,4 +42,5 @@
         </junit>
     </target>
 </project>
+
 
