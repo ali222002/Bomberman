@@ -24,7 +24,7 @@
     <!-- Compile test files -->
     <target name="compile-tests" depends="compile">
         <mkdir dir="build/test-classes"/>
-        <javac srcdir="tests" destdir="build/test-classes" classpathref="classpath"/>
+        <javac srcdir="test" destdir="build/test-classes" classpathref="classpath"/>
     </target>
     
     <!-- Run tests -->
