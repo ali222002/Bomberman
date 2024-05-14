@@ -33,10 +33,12 @@ test_model:
         - build/test/results/*.xml
 
 # Deploy
-deploy_app:
+deploy_job:
   stage: deploy
   script:
-    - mkdir -p "build/scripts"
-    - cp -r build/classes/* "build/scripts"
+    - ant jar -lib lib
+  artifacts:
+    paths:
+      - dist/*.jar
   only:
     - master
