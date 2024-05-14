@@ -31,5 +31,23 @@
             </classpath>
         </javac>
     </target>
+    
+    <!-- Run tests -->
+    <target name="test" depends="compile-tests">
+        <mkdir dir="build/test/results"/>
+        <junit printsummary="yes" haltonfailure="yes" haltonerror="yes">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement path="build/classes"/>
+                <pathelement path="build/test-classes"/>
+            </classpath>
+            <batchtest fork="true" todir="build/test/results">
+                <fileset dir="test/model">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+            <formatter type="xml"/>
+        </junit>
+    </target>
 </project>
 
