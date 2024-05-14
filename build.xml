@@ -24,12 +24,7 @@
     <!-- Compile test files -->
     <target name="compile-tests" depends="compile">
         <mkdir dir="build/test-classes"/>
-        <javac srcdir="test" destdir="build/test-classes">
-            <classpath>
-                <path refid="classpath"/>
-                <pathelement path="build/classes"/>
-            </classpath>
-        </javac>
+        <javac srcdir="tests" destdir="build/test-classes" classpathref="classpath"/>
     </target>
     
     <!-- Run tests -->
@@ -50,4 +45,3 @@
         </junit>
     </target>
 </project>
-
