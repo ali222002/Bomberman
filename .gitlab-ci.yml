@@ -15,6 +15,7 @@ before_script:
 build_game:
   stage: build
   script:
+    - ant clean
     - ant compile -lib lib
     - ant jar -lib lib
 
