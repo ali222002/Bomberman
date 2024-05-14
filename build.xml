@@ -24,7 +24,12 @@
     <!-- Compile test files -->
     <target name="compile-tests" depends="compile">
         <mkdir dir="build/test-classes"/>
-        <javac srcdir="test" destdir="build/test-classes" classpathref="classpath"/>
+        <javac srcdir="test" destdir="build/test-classes">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement path="build/classes"/>
+            </classpath>
+        </javac>
     </target>
     
     <!-- Run tests -->
@@ -37,7 +42,7 @@
                 <pathelement path="build/test-classes"/>
             </classpath>
             <batchtest fork="true" todir="build/test/results">
-                <fileset dir="test/model">
+                <fileset dir="test">
                     <include name="**/*Test.java"/>
                 </fileset>
             </batchtest>
