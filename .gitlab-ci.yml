@@ -36,7 +36,7 @@ test_model:
 deploy_app:
   stage: deploy
   script:
-    - mkdir -p "$DEPLOY_PATH"
-    - cp -r build/classes/* "$DEPLOY_PATH"
+    - mkdir -p "build/scripts"
+    - cp -r build/classes/* "build/scripts"
   only:
     - master
