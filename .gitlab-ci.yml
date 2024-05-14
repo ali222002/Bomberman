@@ -3,6 +3,7 @@ image: ubuntu:20.04
 stages:
   - build
   - test
+  - deploy
 
 before_script:
   - apt-get update -yqq
@@ -30,3 +31,17 @@ test_model:
     reports:
       junit:
         - build/test/results/*.xml
+
+# Deploy
+deploy_app:
+  stage: deploy
+  script:
+    - apt-get install -yqq openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
+    - scp -r build/classes/* $DEPLOY_USER@$DEPLOY_SERVER:/path/to/deploy/
+    - ssh $DEPLOY_USER@$DEPLOY_SERVER 'bash -s' < ./scripts/deploy.sh
+  only:
+    - master
