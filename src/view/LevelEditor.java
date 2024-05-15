@@ -12,6 +12,14 @@ public class LevelEditor extends JFrame {
     private JPanel grid;
     private String selectedElement = "Empty";
     
+    private Color player1Color = Color.RED;
+    private Color player2Color = Color.BLUE;
+    private Color player3Color = Color.YELLOW;
+    private JPanel player1Cell;
+    private JPanel player2Cell;
+    private JPanel player3Cell;
+    
+    
     public LevelEditor() {
         this.setTitle("BOMBERMAN");
         this.setSize(1000, 800);
@@ -37,6 +45,24 @@ public class LevelEditor extends JFrame {
                                 cell.setBackground(Color.DARK_GRAY);
                             } else if (selectedElement.equals("Box")) {
                                 cell.setBackground(Color.GRAY);
+                            } else if (selectedElement.equals("Player1")) {
+                                if (player1Cell != null) {
+                                    player1Cell.setBackground(Color.GREEN); // Reset the old player 1 cell
+                                }
+                                cell.setBackground(player1Color);
+                                player1Cell = cell; // Update the player 1 cell
+                            } else if (selectedElement.equals("Player2")) {
+                                if (player2Cell != null) {
+                                    player2Cell.setBackground(Color.GREEN); // Reset the old player 2 cell
+                                }
+                                cell.setBackground(player2Color);
+                                player2Cell = cell; // Update the player 2 cell
+                            } else if (selectedElement.equals("Player3")) {
+                                if (player3Cell != null) {
+                                    player3Cell.setBackground(Color.GREEN); // Reset the old player 3 cell
+                                }
+                                cell.setBackground(player3Color);
+                                player3Cell = cell; // Update the player 3 cell
                             } else {
                                 cell.setBackground(Color.GREEN);
                             }
@@ -62,7 +88,7 @@ public class LevelEditor extends JFrame {
         }
 
         // Create the palette
-        JPanel palette = new JPanel(new GridLayout(4, 1));
+         JPanel palette = new JPanel(new GridLayout(7, 1));
         palette.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add 10-pixel padding
         palette.setOpaque(false); // Make the palette panel transparent
         JButton wallButton = new JButton("Wall");
@@ -71,6 +97,12 @@ public class LevelEditor extends JFrame {
         boxButton.addActionListener(e -> selectedElement = "Box");
         JButton emptyButton = new JButton("Empty");
         emptyButton.addActionListener(e -> selectedElement = "Ground");
+        JButton player1Button = new JButton("Player 1");
+        player1Button.addActionListener(e -> selectedElement = "Player1");
+        JButton player2Button = new JButton("Player 2");
+        player2Button.addActionListener(e -> selectedElement = "Player2");
+        JButton player3Button = new JButton("Player 3");
+        player3Button.addActionListener(e -> selectedElement = "Player3");
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             if (countBoxes() >= 10) {
@@ -84,6 +116,14 @@ public class LevelEditor extends JFrame {
                             writer.print('2');
                         } else {
                             writer.print('3');
+                        }
+                        
+                        if (cell.getBackground() == player1Color) {
+                            writer.print('4');
+                        } else if (cell.getBackground() == player2Color) {
+                            writer.print('5');
+                        } else if (cell.getBackground() == player3Color) {
+                            writer.print('6');
                         }
                         if ((i + 1) % 19 == 0) { // End of a row
                             writer.println();
@@ -100,6 +140,9 @@ public class LevelEditor extends JFrame {
         palette.add(wallButton);
         palette.add(boxButton);
         palette.add(emptyButton);
+        palette.add(player1Button);
+        palette.add(player2Button);
+        palette.add(player3Button);
         palette.add(saveButton);
 
         // Add the grid and palette to the frame
@@ -145,6 +188,24 @@ public class LevelEditor extends JFrame {
                                     cell.setBackground(Color.DARK_GRAY);
                                 } else if (selectedElement.equals("Box")) {
                                     cell.setBackground(Color.GRAY);
+                                } else if (selectedElement.equals("Player1")) {
+                                    if (player1Cell != null) {
+                                        player1Cell.setBackground(Color.GREEN); // Reset the old player 1 cell
+                                    }
+                                    cell.setBackground(player1Color);
+                                    player1Cell = cell; // Update the player 1 cell
+                                } else if (selectedElement.equals("Player2")) {
+                                    if (player2Cell != null) {
+                                        player2Cell.setBackground(Color.GREEN); // Reset the old player 2 cell
+                                    }
+                                    cell.setBackground(player2Color);
+                                    player2Cell = cell; // Update the player 2 cell
+                                } else if (selectedElement.equals("Player3")) {
+                                    if (player3Cell != null) {
+                                        player3Cell.setBackground(Color.GREEN); // Reset the old player 3 cell
+                                    }
+                                    cell.setBackground(player3Color);
+                                    player3Cell = cell; // Update the player 3 cell
                                 } else {
                                     cell.setBackground(Color.GREEN);
                                 }
@@ -159,7 +220,7 @@ public class LevelEditor extends JFrame {
         }
 
         // Create the palette
-        JPanel palette = new JPanel(new GridLayout(4, 1));
+        JPanel palette = new JPanel(new GridLayout(7, 1));
         palette.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add 10-pixel padding
         palette.setOpaque(false); // Make the palette panel transparent
         JButton wallButton = new JButton("Wall");
@@ -168,6 +229,12 @@ public class LevelEditor extends JFrame {
         boxButton.addActionListener(e -> selectedElement = "Box");
         JButton emptyButton = new JButton("Empty");
         emptyButton.addActionListener(e -> selectedElement = "Ground");
+        JButton player1Button = new JButton("Player 1");
+        player1Button.addActionListener(e -> selectedElement = "Player1");
+        JButton player2Button = new JButton("Player 2");
+        player2Button.addActionListener(e -> selectedElement = "Player2");
+        JButton player3Button = new JButton("Player 3");
+        player3Button.addActionListener(e -> selectedElement = "Player3");
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             if (countBoxes() >= 10) {
@@ -181,6 +248,15 @@ public class LevelEditor extends JFrame {
                         } else {
                             writer.print('3');
                         }
+                        
+                        if (cell.getBackground() == player1Color) {
+                            writer.print('4');
+                        } else if (cell.getBackground() == player2Color) {
+                            writer.print('5');
+                        } else if (cell.getBackground() == player3Color) {
+                            writer.print('6');
+                        }
+                        
                         if ((i + 1) % 19 == 0) { // End of a row
                             writer.println();
                         }
@@ -196,7 +272,11 @@ public class LevelEditor extends JFrame {
         palette.add(wallButton);
         palette.add(boxButton);
         palette.add(emptyButton);
+        palette.add(player1Button);
+        palette.add(player2Button);
+        palette.add(player3Button);
         palette.add(saveButton);
+
 
         // Add the grid and palette to the frame
         this.add(grid, BorderLayout.CENTER);
