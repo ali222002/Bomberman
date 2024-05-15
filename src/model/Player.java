@@ -12,13 +12,20 @@ class Player extends ActiveObject {
     }
 
     // ATTRIBUTES
-
+    
+    //points
+    
+    
+    
     private Image[] animationFramesUp;
     private Image[] animationFramesDown;
     private Image[] animationFramesLeft;
     private Image[] animationFramesRight;
     private int currentFrame = 0;
 
+    public boolean isAlive;
+    
+    public String name;
     public Direction direction;
 
     public double speed_on_x_axis = 0;
@@ -44,7 +51,7 @@ class Player extends ActiveObject {
     private int currentBombsOnField;
     private int bombRange;
     
-    public Player(int x, int y, int w, int h, Image[] animationFramesUp, Image[] animationFramesDown, Image[] animationFramesLeft, Image[] animationFramesRight) {
+    public Player(int x, int y, int w, int h, Image[] animationFramesUp, Image[] animationFramesDown, Image[] animationFramesLeft, Image[] animationFramesRight, String name) {
         super(x, y, w, h, animationFramesRight[0]); // Default image
         this.animationFramesUp = animationFramesUp;
         this.animationFramesDown = animationFramesDown;
@@ -53,6 +60,8 @@ class Player extends ActiveObject {
         this.AllowedBombCnt = 1;
         this.currentBombsOnField = 0;
         this.bombRange = 40;
+        this.isAlive = true;
+        this.name = name;
     }
 
     // GETTERS AND SETTERS
@@ -142,7 +151,10 @@ class Player extends ActiveObject {
     }
 
     public boolean canDropbomb() {
+        if (isAlive)
         return currentBombsOnField < AllowedBombCnt; 
+        else 
+        return false;
     }
 
     public void DropBomb() {
@@ -163,6 +175,12 @@ class Player extends ActiveObject {
 
     public int getBombRange() {
         return bombRange;
+    }
+    
+    public void Die(){
+        this._x = -1;
+        this._y = -1;
+        isAlive = false;
     }
 
 

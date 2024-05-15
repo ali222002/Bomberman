@@ -47,14 +47,19 @@ public class Engine extends JPanel {
     private int id_level;
     private int r_movement = 3;
     private boolean game_paused = false;
-
+    
+    int[] players_points = {0,0,0};
+    // index 0 is player 1 and etc...
+    
+    
     ActiveObject gameObj;
     ActiveObject playerObj;
 
     public ArrayList<ActiveObject> playersUI = new ArrayList();
 
     public int point = 0;
-
+    public String str;
+    public String ss;
     private Level _level;
     private Timer _timer;
 
@@ -67,7 +72,7 @@ public class Engine extends JPanel {
 
     private ArrayList<Player> players = new ArrayList();
     private ArrayList<Monster> monsters = new ArrayList();
-    private int monster_count = 3;
+    private int monster_count;
 
     private ArrayList<Bomb> DroppedBombs = new ArrayList();
     private ArrayList<Explosion> _explosions = new ArrayList();
@@ -83,7 +88,6 @@ public class Engine extends JPanel {
         for (int j = 0; j < numFrames; j++) {
             try {
                 String filePath = "src/media/players/player" + c + "/" + string + "/frame-" + (j + 1) + ".png";
-                System.out.println(filePath);
                 frames[j] = ImageIO.read(new File(filePath));
 
             } catch (IOException e) {
@@ -138,13 +142,13 @@ public class Engine extends JPanel {
 
     }
 
-    public Engine(int player_count, int round_count, int id_level) throws IOException, JSONException {
+    public Engine(int player_count, int round_count, int id_level, int monstercount) throws IOException, JSONException {
         super();
-
+        
         this.id_level = id_level;
         this.player_count = player_count;
         this.round_count = round_count;
-
+        this.monster_count = monstercount;
         Image image1 = new ImageIcon("src/media/black.png").getImage();
         gameObj = new ActiveObject(760, 0, 250, 800, image1);
 
@@ -187,9 +191,9 @@ public class Engine extends JPanel {
                 posX = 680;
                 posY = 680;
             }
-
+            str = String.valueOf(i);
             Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
+                    playerFramesRight,str);
             players.add(_player);
             setControls(_player, up, down, left, right, bomb);
         }
@@ -358,7 +362,10 @@ public class Engine extends JPanel {
             public void actionPerformed(ActionEvent ae) {
                 if (player.canDropbomb()) {
                     System.out.println("BOMB DROPPED");
+                    System.out.println(player._x);
                     Ground gr = player.whereAmI(_level);
+                    
+                    
                     Image img = new ImageIcon("src/media/Bomb.png").getImage();
                     Bomb bomb = new Bomb(gr.get_X(), gr.get_Y(), 30, 30, img, player); // Create a new Bomb object
                     // bomb = new Bomb(5, 5, 30, 30, img);
@@ -417,9 +424,9 @@ public class Engine extends JPanel {
                 posX = 680;
                 posY = 680;
             }
-
+            str = String.valueOf(i);
             Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
-                    playerFramesRight);
+                    playerFramesRight, str);
             players.add(_player);
             setControls(_player, up, down, left, right, bomb);
         }
@@ -433,6 +440,7 @@ public class Engine extends JPanel {
             int y = r.nextInt(321) + 40;
             boolean tmp = true;
             boolean tmp2 = true;
+            boolean tmp3 = true;
             for (Wall wall : _level.walls) {
 
                 Rectangle rect = new Rectangle(x, y, 40, 40);
@@ -451,7 +459,17 @@ public class Engine extends JPanel {
                 }
 
             }
-            if (tmp && tmp2) {
+            
+            for (Monster monster : monsters){
+                Rectangle rect = new Rectangle(x, y, 40, 40);
+                Rectangle otherRect = new Rectangle(monster._x, monster._y, monster._width, monster._height);
+                if (rect.intersects(otherRect)) {
+                    tmp3 = false;
+                }
+            }
+            
+            
+            if (tmp && tmp2 && tmp3) {
                 Image[] monsterFramesUp = loadMonsterFrames("up");
 
                 Image[] monsterFramesDown = loadMonsterFrames("down");
@@ -538,6 +556,7 @@ public class Engine extends JPanel {
                 while (playerIterator.hasNext()) {
                     Player player = playerIterator.next();
                     if (monster.did_hit(player)) {
+                        player.Die();
                         players.remove(player); // Remove the player
                         break; // Stop checking further collisions for this monster
                     }
@@ -581,55 +600,126 @@ public class Engine extends JPanel {
         }
     
         private void updatePlayers() {
-            Iterator<Player> playerIterator = players.iterator();
-            while (playerIterator.hasNext()) {
-                Player player = playerIterator.next();
-    
-                // Check player-level collisions
-                if (_level.did_hit(player)) {
-                    player.set_x_speed(0);
-                    player.set_y_speed(0);
-                }
-    
-                // Check player-powerup collisions
-                Iterator<Powerups> powerupIterator = _level.powerups.iterator();
-                while (powerupIterator.hasNext()) {
-                    Powerups powerup = powerupIterator.next();
-                    if (player.did_hit(powerup)) {
-                        player.powerups.add(powerup);
-                        powerupIterator.remove(); // Remove powerup from the level
-                        playSound("src/sounds/boostUP.wav");
-    
-                        if (powerup instanceof MoreBombPowerup) {
-                            player.increaseAllowedBombs(); // Increase allowed bombs
-                            System.out.println("Picked up a MoreBombPowerup!");
-                        } else if (powerup instanceof RangePowerup) {
-                            player.increaseBombRange(); // Increase bomb range
-                            System.out.println("Picked up a RangePowerup!");
-                        } else {
-                            System.out.println("Picked up a generic power-up!");
-                        }
-                    }
-                }
-    
-                player.move(); // Update player's position
-            }
-    
-            // Check round/game over conditions
-            if (players.isEmpty()) {
-                if (round_count > 0) {
-                    JOptionPane.showMessageDialog(null, "Round OVER");
-                    try {
-                        restart_game();
-                    } catch (IOException ex) {
-                        Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                    }
+    Iterator<Player> playerIterator = players.iterator();
+    while (playerIterator.hasNext()) {
+        Player player = playerIterator.next();
+
+        // Check player-level collisions
+        if (_level.did_hit(player)) {
+            player.set_x_speed(0);
+            player.set_y_speed(0);
+        }
+
+        // Check player-powerup collisions
+        Iterator<Powerups> powerupIterator = _level.powerups.iterator();
+        while (powerupIterator.hasNext()) {
+            Powerups powerup = powerupIterator.next();
+            if (player.did_hit(powerup)) {
+                player.powerups.add(powerup);
+                powerupIterator.remove(); // Remove powerup from the level
+                playSound("src/sounds/boostUP.wav");
+
+                if (powerup instanceof MoreBombPowerup) {
+                    player.increaseAllowedBombs(); // Increase allowed bombs
+                    System.out.println("Picked up a MoreBombPowerup!");
+                } else if (powerup instanceof RangePowerup) {
+                    player.increaseBombRange(); // Increase bomb range
+                    System.out.println("Picked up a RangePowerup!");
                 } else {
-                    JOptionPane.showMessageDialog(null, "GAME OVER");
-                    System.exit(0);
+                    System.out.println("Picked up a generic power-up!");
                 }
             }
         }
+
+        player.move(); // Update player's position
+    }
+
+    // Check round/game over conditions
+    if (players.size() == 1) {
+        Player winner = players.get(0);
+        String winnerName = winner.name.toString();
+        updatePlayerPoints(winnerName);
+
+        if (round_count > 0) {
+            try {
+                restart_game();
+            } catch (IOException ex) {
+                Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+            JOptionPane.showMessageDialog(null, "Round OVER" + "\n" + "POINTS: \n" +
+                    "Player 1: " + players_points[0] + "\n" +
+                    "Player 2: " + players_points[1] + "\n" +
+                    "Player 3: " + players_points[2] + "\n" +
+                    "PLAYER " + winnerName + " WINS!!!!"
+            );
+        } else {
+            determineWinner();
+        }
+    } else if (players.isEmpty()) {
+        if (round_count > 0) {
+            try {
+                restart_game();
+            } catch (IOException ex) {
+                Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+        } else {
+            determineWinner();
+        }
+        JOptionPane.showMessageDialog(null, "Round DRAW" + "\n" + "POINTS: \n" +
+                "Player 1: " + players_points[0] + "\n" +
+                "Player 2: " + players_points[1] + "\n" +
+                "Player 3: " + players_points[2] + "\n" +
+                "NOBODY WINS!!"
+        );
+    }
+}
+
+private void updatePlayerPoints(String playerName) {
+    if (playerName.equals("1")) {
+        players_points[0]++;
+        System.out.println("Player 1-------Points- " + players_points[0]);
+    } else if (playerName.equals("2")) {
+        players_points[1]++;
+        System.out.println("Player 2-------Points- " + players_points[1]);
+    } else if (playerName.equals("3")) {
+        players_points[2]++;
+        System.out.println("Player 3--------Points--- " + players_points[2]);
+    }
+}
+
+private void determineWinner() {
+    int maxPoints = players_points[0];
+    int winnerIndex = 0;
+    boolean draw = false;
+
+    for (int i = 1; i < players_points.length; i++) {
+        if (players_points[i] > maxPoints) {
+            maxPoints = players_points[i];
+            winnerIndex = i;
+            draw = false;
+        } else if (players_points[i] == maxPoints) {
+            draw = true;
+        }
+    }
+
+    if (draw) {
+        JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" + "POINTS: \n" +
+                "Player 1: " + players_points[0] + "\n" +
+                "Player 2: " + players_points[1] + "\n" +
+                "Player 3: " + players_points[2] + "\n" +
+                "NOBODY WON!"
+        );
+    } else {
+        JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" + "POINTS: \n" +
+                "Player 1: " + players_points[0] + "\n" +
+                "Player 2: " + players_points[1] + "\n" +
+                "Player 3: " + players_points[2] + "\n" +
+                "PLAYER " + (winnerIndex + 1) + " WINS!!!!"
+        );
+    }
+    System.exit(0);
+}
+
     
         private void handleExplosions() {
             Iterator<Explosion> iterator = _explosions.iterator();

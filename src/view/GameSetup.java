@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -16,11 +18,12 @@ import javax.swing.JPanel;
 
 class GameSetup {
     private JFrame frame;
-    private JLabel titleNameLabel, title_mapNameLabel, title_playerNameLabel, title_rNameLabel;
-    private JPanel titleNamePanel, title_mapNamePanel, title_playerNamePanel, title_rNamePanel, mapSelectorPanel, playerSelectorPanel, roundsSelectorPanel, backButtonPanel, playButtonPanel;
+    private JLabel titleNameLabel, title_mapNameLabel, title_playerNameLabel, title_rNameLabel, title_MonsterNameLabel;
+    private JPanel titleNamePanel, title_mapNamePanel, title_playerNamePanel, title_MonsterNamePanel, title_rNamePanel, mapSelectorPanel, playerSelectorPanel, monsterSelectorPanel, roundsSelectorPanel, backButtonPanel, playButtonPanel;
     private JComboBox<String> mapSelector;
     private JComboBox<Integer> playerSelector;
     private JComboBox<Integer> roundsSelector;
+    private JComboBox<Integer> monsterSelector;
     private JButton backButton, playButton;
     private final Font title1Font = new Font("Arial", Font.BOLD, 70);
     private final Font titleFont = new Font("Arial", Font.BOLD, 28);
@@ -37,7 +40,7 @@ class GameSetup {
         
         // Title
         titleNamePanel = new JPanel();
-        titleNamePanel.setBounds(100, 100, 800, 100);
+        titleNamePanel.setBounds(100, 50, 800, 100);
         titleNamePanel.setBackground(backgroundColor);
         titleNameLabel = new JLabel("GAME SETUP");
         titleNameLabel.setForeground(Color.black);
@@ -47,23 +50,39 @@ class GameSetup {
         
         // Map Selector
         title_mapNamePanel = new JPanel();
-        title_mapNamePanel.setBounds(200, 250, 200, 50);
+        title_mapNamePanel.setBounds(200, 150, 200, 50);
         title_mapNamePanel.setBackground(backgroundColor);
         title_mapNameLabel = new JLabel("select map:");
         title_mapNameLabel.setForeground(Color.black);
         title_mapNameLabel.setFont(titleFont);
         
-        String[] maps = {"1", "2", "3", "4"};
+        File dir = new File("src/levels");
+        File[] files = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".txt");
+            }
+        });
+
+        // Create a list of map names
+        String[] maps = new String[files.length];
+        for (int i = 0; i < files.length; i++) {
+            String str = files[i].getName().replace(".txt", "");
+            String str2 = str.replace("level", "");
+            
+            maps[i] = str2;
+        }
+
+        mapSelector = new JComboBox<>(maps);
         mapSelector = new JComboBox<>(maps);
         mapSelector.setFont(normalFont);
         mapSelectorPanel = new JPanel();
-        mapSelectorPanel.setBounds(400, 250, 200, 50);
+        mapSelectorPanel.setBounds(400, 150, 200, 50);
         mapSelectorPanel.setBackground(backgroundColor);
         mapSelectorPanel.add(mapSelector);
 
         // Player Selector
         title_playerNamePanel = new JPanel();
-        title_playerNamePanel.setBounds(200, 350, 200, 50);
+        title_playerNamePanel.setBounds(200, 250, 200, 50);
         title_playerNamePanel.setBackground(backgroundColor);
         title_playerNameLabel = new JLabel("players count:");
         title_playerNameLabel.setForeground(Color.black);
@@ -73,10 +92,26 @@ class GameSetup {
         playerSelector = new JComboBox<>(playerNumbers);
         playerSelector.setFont(normalFont);
         playerSelectorPanel = new JPanel();
-        playerSelectorPanel.setBounds(400, 350, 200, 50);
+        playerSelectorPanel.setBounds(400, 250, 200, 50);
         playerSelectorPanel.setBackground(backgroundColor);
         playerSelectorPanel.add(playerSelector);
 
+         // Player Selector
+        title_MonsterNamePanel = new JPanel();
+        title_MonsterNamePanel.setBounds(200, 350, 200, 50);
+        title_MonsterNamePanel.setBackground(backgroundColor);
+        title_MonsterNameLabel = new JLabel("monster count:");
+        title_MonsterNameLabel.setForeground(Color.black);
+        title_MonsterNameLabel.setFont(titleFont);
+        
+        Integer[] MonsterNumbers = {2, 3, 4, 5, 6};
+        monsterSelector = new JComboBox<>(MonsterNumbers);
+        monsterSelector.setFont(normalFont);
+        monsterSelectorPanel = new JPanel();
+        monsterSelectorPanel.setBounds(400, 350, 200, 50);
+        monsterSelectorPanel.setBackground(backgroundColor);
+        monsterSelectorPanel.add(monsterSelector);
+        
         // Rounds Selector
         title_rNamePanel = new JPanel();
         title_rNamePanel.setBounds(200, 450, 200, 50);
@@ -104,9 +139,10 @@ class GameSetup {
             public void actionPerformed(ActionEvent e) {
                 int playerCount = (Integer) playerSelector.getSelectedItem();
                 int roundCount = (Integer) roundsSelector.getSelectedItem();
+                int monsterCount = (Integer) monsterSelector.getSelectedItem();
                 String m = mapSelector.getSelectedItem().toString();
                 try {
-                    StartGame startgame = new StartGame(playerCount, roundCount-1, Integer.parseInt(m));
+                    StartGame startgame = new StartGame(playerCount, roundCount-1, Integer.parseInt(m), monsterCount);
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -141,7 +177,9 @@ class GameSetup {
 
         // Adding components to frame
         title_playerNamePanel.add(title_playerNameLabel);
+        title_MonsterNamePanel.add(title_MonsterNameLabel);
         frame.add(title_playerNamePanel);
+        frame.add(title_MonsterNamePanel);
         titleNamePanel.add(titleNameLabel);
         frame.add(titleNamePanel);
         title_mapNamePanel.add(title_mapNameLabel);
@@ -153,6 +191,7 @@ class GameSetup {
         frame.add(roundsSelectorPanel);
         frame.add(playButtonPanel);
         frame.add(backButtonPanel);
+        frame.add(monsterSelectorPanel);
         
         frame.setResizable(false);
         frame.setVisible(true);

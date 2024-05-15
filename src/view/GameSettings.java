@@ -25,11 +25,11 @@ class GameSettings{
     JFrame frame;
     
     Container con;
-    JPanel titleNamePanel, startButtonPanel, exitButtonPanel, settingsButtonPanel;
+    JPanel titleNamePanel, startButtonPanel, exitButtonPanel, settingsButtonPanel, levelEditorButtonPanel;
     JLabel titleNameLabel;
     Font titleFont = new Font("Arial", Font.BOLD, 90);
     Font normalFont = new Font("Arial", Font.BOLD, 28);
-    JButton startButton, exitButton, settingsButton;
+    JButton startButton, exitButton, settingsButton, levelEditorButton;
     
 class ControlSettingsFrame extends JFrame {
     Font controlFont = new Font("Arial", Font.PLAIN, 18);
@@ -168,11 +168,29 @@ class ControlSettingsFrame extends JFrame {
                 frame.dispose(); 
             }
         });
+        
+       // level editor butrton
+       levelEditorButtonPanel = new JPanel();
+       levelEditorButtonPanel.setBounds(400, 600, 200, 100);
+       levelEditorButtonPanel.setBackground(new Color(27, 102, 49));
+
+       levelEditorButton = new JButton("level editor");
+       levelEditorButton.setBackground(Color.black);
+       levelEditorButton.setForeground(Color.white);
+       levelEditorButton.setFont(normalFont);
+       levelEditorButton.setFocusPainted(false);
+
+        levelEditorButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MapSelector start = new MapSelector();
+                frame.dispose();
+            }
+        });
 
         // Exit button
 
         exitButtonPanel = new JPanel();
-        exitButtonPanel.setBounds(400, 600, 200, 100);
+        exitButtonPanel.setBounds(400, 700, 200, 100);
         exitButtonPanel.setBackground(new Color(27, 102, 49));
 
         exitButton = new JButton("back");
@@ -187,17 +205,22 @@ class ControlSettingsFrame extends JFrame {
                 frame.dispose();
             }
         });
+        
+        
 
+        
         titleNamePanel.add(titleNameLabel);
         startButtonPanel.add(startButton);
         exitButtonPanel.add(exitButton);
         settingsButtonPanel.add(settingsButton);
+        levelEditorButtonPanel.add(levelEditorButton);
 
         con.add(titleNamePanel);
         con.add(startButtonPanel);
         con.add(exitButtonPanel);
         con.add(settingsButtonPanel);
-
+        con.add(levelEditorButtonPanel);
+        
         
         
         
@@ -207,6 +230,9 @@ class ControlSettingsFrame extends JFrame {
         frame.pack();
         frame.setVisible(true);
     }
+    
+    
+    
         public static void main(String[] args) {
         new GameSettings();
     }

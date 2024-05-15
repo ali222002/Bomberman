@@ -27,11 +27,11 @@ class StartGame {
         Font normalFont = new Font("Arial", Font.BOLD, 28);
         JButton startButton, exitButton, settingsButton;
         
-    public StartGame(int playerCNT, int roundCNT, int mapId) throws IOException, JSONException {        
+    public StartGame(int playerCNT, int roundCNT, int mapId, int monstercnt) throws IOException, JSONException {        
         frame = new JFrame("BOMBERMAN");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        Engine map = new Engine(playerCNT, roundCNT, mapId);
+        Engine map = new Engine(playerCNT, roundCNT, mapId, monstercnt);
         frame.getContentPane().add(map);
         
         
