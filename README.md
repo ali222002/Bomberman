@@ -6,7 +6,7 @@ Bomberman
 
 ___
 ## Description
-A bomberman game based on legendary DynaBlaster.
+A bomberman game based on legendary DynaBlaster game.
 
 ___
 ## Usage
@@ -22,7 +22,7 @@ below are some screenshots from game...
 ___
 
 ## In Game Images
-![alt text](src/media/userinterface.png "UI")
+![alt text](src/media/mainmenu.png "UI")
 ![alt text](src/media/leveleditor.png "LEVEL EDITOR")
 ![alt text](src/media/gameplay.png "GAMEPLAY")
 
