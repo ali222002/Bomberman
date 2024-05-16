@@ -465,7 +465,7 @@ public class Engine extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (player.canDropbomb()) {
+                if (player.canDropbomb() ) {
                     System.out.println("BOMB DROPPED");
                     System.out.println(player._x);
                     Ground gr = player.whereAmI(_level);
@@ -603,7 +603,12 @@ public class Engine extends JPanel {
         _level.placeWalls(grphcs);
         _level.placePowerups(grphcs);
         _level.placeBoxes(grphcs);
-
+        
+        for (int i = 0; i < DroppedBombs.size(); i++) {
+            DroppedBombs.get(i).drawObject(grphcs);
+        }
+        
+        
         for (int i = 0; i < players.size(); i++) {
             players.get(i).drawObject(grphcs);
         }
@@ -612,9 +617,7 @@ public class Engine extends JPanel {
             monsters.get(i).drawObject(grphcs);
         }
 
-        for (int i = 0; i < DroppedBombs.size(); i++) {
-            DroppedBombs.get(i).drawObject(grphcs);
-        }
+        
 
         for (int i = 0; i < playersUI.size(); i++) {
             playersUI.get(i).drawObject(grphcs);
@@ -634,7 +637,7 @@ public class Engine extends JPanel {
     class FrameUpdate implements ActionListener {
 
         private JPanel panel;
-    
+        
         FrameUpdate(JPanel panel) {
             this.panel = panel;
         }
@@ -646,7 +649,6 @@ public class Engine extends JPanel {
                 handleBombs();
                 updatePlayers();
                 handleExplosions();
-    
                 repaint();
             }
         }
@@ -662,6 +664,7 @@ public class Engine extends JPanel {
                     Player player = playerIterator.next();
                     if (monster.did_hit(player)) {
                         player.Die();
+                        
                         players.remove(player); // Remove the player
                         break; // Stop checking further collisions for this monster
                     }
@@ -705,139 +708,157 @@ public class Engine extends JPanel {
         }
     
         private void updatePlayers() {
-    Iterator<Player> playerIterator = players.iterator();
-    while (playerIterator.hasNext()) {
-        Player player = playerIterator.next();
-
-        // Check player-level collisions
-        if (_level.did_hit(player)) {
-            player.set_x_speed(0);
-            player.set_y_speed(0);
-        }
-
-        // Check player-powerup collisions
-        Iterator<Powerups> powerupIterator = _level.powerups.iterator();
-        while (powerupIterator.hasNext()) {
-            Powerups powerup = powerupIterator.next();
-            if (player.did_hit(powerup)) {
-                player.powerups.add(powerup);
-                powerupIterator.remove(); // Remove powerup from the level
-                playSound("src/sounds/boostUP.wav");
-
-                if (powerup instanceof MoreBombPowerup) {
-                    player.increaseAllowedBombs(); // Increase allowed bombs
-                    System.out.println("Picked up a MoreBombPowerup!");
-                } else if (powerup instanceof RangePowerup) {
-                    player.increaseBombRange(); // Increase bomb range
-                    System.out.println("Picked up a RangePowerup!");
-                } else {
-                    System.out.println("Picked up a generic power-up!");
+            Iterator<Player> playerIterator = players.iterator();
+            while (playerIterator.hasNext()) {
+                Player player = playerIterator.next();
+                
+                // Check player-level collisions
+                if (_level.did_hit(player)) {
+                    player.set_x_speed(0);
+                    player.set_y_speed(0);
                 }
+                
+                
+                
+                
+                Iterator<Bomb> iterator = DroppedBombs.iterator();
+                while (iterator.hasNext()) {
+                    
+                    Bomb bomb = iterator.next();
+                    
+                    if (player.isOnBomb() && !player.did_hit(bomb)) {
+                        player.moveOffBomb();
+                    }
+                    
+                    if (!player.isOnBomb()&& player.did_hit(bomb)) {
+                        player.set_x_speed(0);
+                        player.set_y_speed(0);
+                    }
+                }
+                
+
+                // Check player-powerup collisions
+                Iterator<Powerups> powerupIterator = _level.powerups.iterator();
+                while (powerupIterator.hasNext()) {
+                    Powerups powerup = powerupIterator.next();
+                    if (player.did_hit(powerup)) {
+                        player.powerups.add(powerup);
+                        powerupIterator.remove(); // Remove powerup from the level
+                        playSound("src/sounds/boostUP.wav");
+
+                        if (powerup instanceof MoreBombPowerup) {
+                            player.increaseAllowedBombs(); // Increase allowed bombs
+                            System.out.println("Picked up a MoreBombPowerup!");
+                        } else if (powerup instanceof RangePowerup) {
+                            player.increaseBombRange(); // Increase bomb range
+                            System.out.println("Picked up a RangePowerup!");
+                        } else {
+                            System.out.println("Picked up a generic power-up!");
+                        }
+                    }
+                }
+
+                player.move(); // Update player's position
+            }
+
+            // Check round/game over conditions
+            if (players.size() == 1) {
+                Player winner = players.get(0);
+                String winnerName = winner.name.toString();
+                updatePlayerPoints(winnerName);
+
+                if (round_count > 0) {
+                    try {
+                        restart_game();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                    }
+                    JOptionPane.showMessageDialog(null, "Round OVER" + "\n" + "POINTS: \n" +
+                            "Player 1: " + players_points[0] + "\n" +
+                            "Player 2: " + players_points[1] + "\n" +
+                            "Player 3: " + players_points[2] + "\n" +
+                            "PLAYER " + winnerName + " WINS!!!!"
+                    );
+                } else {
+                    determineWinner();
+                }
+            } else if (players.isEmpty()) {
+                if (round_count > 0) {
+                    try {
+                        restart_game();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                    }
+                } else {
+                    determineWinner();
+                }
+                JOptionPane.showMessageDialog(null, "Round DRAW" + "\n" + "POINTS: \n" +
+                        "Player 1: " + players_points[0] + "\n" +
+                        "Player 2: " + players_points[1] + "\n" +
+                        "Player 3: " + players_points[2] + "\n" +
+                        "NOBODY WINS!!"
+                );
             }
         }
 
-        player.move(); // Update player's position
+    private void updatePlayerPoints(String playerName) {
+        if (playerName.equals("1")) {
+            players_points[0]++;
+            System.out.println("Player 1-------Points- " + players_points[0]);
+        } else if (playerName.equals("2")) {
+            players_points[1]++;
+            System.out.println("Player 2-------Points- " + players_points[1]);
+        } else if (playerName.equals("3")) {
+            players_points[2]++;
+            System.out.println("Player 3--------Points--- " + players_points[2]);
+        }
     }
 
-    // Check round/game over conditions
-    if (players.size() == 1) {
-        Player winner = players.get(0);
-        String winnerName = winner.name.toString();
-        updatePlayerPoints(winnerName);
+    private void determineWinner() {
+        int maxPoints = players_points[0];
+        int winnerIndex = 0;
+        boolean draw = false;
 
-        if (round_count > 0) {
-            try {
-                restart_game();
-            } catch (IOException ex) {
-                Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        for (int i = 1; i < players_points.length; i++) {
+            if (players_points[i] > maxPoints) {
+                maxPoints = players_points[i];
+                winnerIndex = i;
+                draw = false;
+            } else if (players_points[i] == maxPoints) {
+                draw = true;
             }
-            JOptionPane.showMessageDialog(null, "Round OVER" + "\n" + "POINTS: \n" +
+        }
+
+        if (draw) {
+            JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" + "POINTS: \n" +
                     "Player 1: " + players_points[0] + "\n" +
                     "Player 2: " + players_points[1] + "\n" +
                     "Player 3: " + players_points[2] + "\n" +
-                    "PLAYER " + winnerName + " WINS!!!!"
+                    "NOBODY WON!"
             );
         } else {
-            determineWinner();
+            JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" + "POINTS: \n" +
+                    "Player 1: " + players_points[0] + "\n" +
+                    "Player 2: " + players_points[1] + "\n" +
+                    "Player 3: " + players_points[2] + "\n" +
+                    "PLAYER " + (winnerIndex + 1) + " WINS!!!!"
+            );
         }
-    } else if (players.isEmpty()) {
-        if (round_count > 0) {
-            try {
-                restart_game();
-            } catch (IOException ex) {
-                Logger.getLogger(Engine.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-            }
-        } else {
-            determineWinner();
-        }
-        JOptionPane.showMessageDialog(null, "Round DRAW" + "\n" + "POINTS: \n" +
-                "Player 1: " + players_points[0] + "\n" +
-                "Player 2: " + players_points[1] + "\n" +
-                "Player 3: " + players_points[2] + "\n" +
-                "NOBODY WINS!!"
-        );
+        System.exit(0);
+        
     }
-}
-
-private void updatePlayerPoints(String playerName) {
-    if (playerName.equals("1")) {
-        players_points[0]++;
-        System.out.println("Player 1-------Points- " + players_points[0]);
-    } else if (playerName.equals("2")) {
-        players_points[1]++;
-        System.out.println("Player 2-------Points- " + players_points[1]);
-    } else if (playerName.equals("3")) {
-        players_points[2]++;
-        System.out.println("Player 3--------Points--- " + players_points[2]);
-    }
-}
-
-private void determineWinner() {
-    int maxPoints = players_points[0];
-    int winnerIndex = 0;
-    boolean draw = false;
-
-    for (int i = 1; i < players_points.length; i++) {
-        if (players_points[i] > maxPoints) {
-            maxPoints = players_points[i];
-            winnerIndex = i;
-            draw = false;
-        } else if (players_points[i] == maxPoints) {
-            draw = true;
-        }
-    }
-
-    if (draw) {
-        JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" + "POINTS: \n" +
-                "Player 1: " + players_points[0] + "\n" +
-                "Player 2: " + players_points[1] + "\n" +
-                "Player 3: " + players_points[2] + "\n" +
-                "NOBODY WON!"
-        );
-    } else {
-        JOptionPane.showMessageDialog(null, "GAME OVER" + "\n" + "POINTS: \n" +
-                "Player 1: " + players_points[0] + "\n" +
-                "Player 2: " + players_points[1] + "\n" +
-                "Player 3: " + players_points[2] + "\n" +
-                "PLAYER " + (winnerIndex + 1) + " WINS!!!!"
-        );
-    }
-    System.exit(0);
-}
 
     
-        private void handleExplosions() {
-            Iterator<Explosion> iterator = _explosions.iterator();
-            while (iterator.hasNext()) {
-                Explosion explosion = iterator.next();
-                explosion.update();
-    
-                if (explosion.isFinished()) {
-                    iterator.remove();
-                }
+    private void handleExplosions() {
+        Iterator<Explosion> iterator = _explosions.iterator();
+        while (iterator.hasNext()) {
+            Explosion explosion = iterator.next();
+            explosion.update();
+
+            if (explosion.isFinished()) {
+                iterator.remove();
             }
         }
     }
-    
-
+  }
 }

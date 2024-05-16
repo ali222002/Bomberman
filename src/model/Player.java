@@ -27,6 +27,7 @@ class Player extends ActiveObject {
     
     public String name;
     public Direction direction;
+    private boolean onBomb;
 
     public double speed_on_x_axis = 0;
     public double speed_on_y_axis = 0;
@@ -151,14 +152,21 @@ class Player extends ActiveObject {
     }
 
     public boolean canDropbomb() {
-        if (isAlive)
-        return currentBombsOnField < AllowedBombCnt; 
-        else 
-        return false;
+        if (isAlive) return currentBombsOnField < AllowedBombCnt; 
+        else return false;
     }
 
     public void DropBomb() {
         currentBombsOnField++; 
+        this.onBomb = true;
+    }
+    
+    public void moveOffBomb() {
+        this.onBomb = false;
+    }
+
+    public boolean isOnBomb() {
+        return this.onBomb;
     }
 
     public void bombExploded() {

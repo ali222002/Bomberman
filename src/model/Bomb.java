@@ -127,8 +127,11 @@ public class Bomb extends ActiveObject {
         while (iterator.hasNext()) {
             T object = iterator.next();
             Rectangle objectRect = new Rectangle(object._x, object._y, object._width, object._height);
-    
+            
             if (explosionArea.intersects(objectRect)) {
+                if (object instanceof Player) {
+                    ((Player) object).Die();
+                }
                 iterator.remove();
                 objectRemoved = true;
             }
@@ -136,8 +139,6 @@ public class Bomb extends ActiveObject {
     
         return objectRemoved;
     }
-    
-    
 
     private void playMusic(String filePath) {
         try {
