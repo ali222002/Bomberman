@@ -2,6 +2,7 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import static java.awt.SystemColor.window;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -88,7 +89,7 @@ public class LevelEditor extends JFrame {
         }
 
         // Create the palette
-         JPanel palette = new JPanel(new GridLayout(7, 1));
+        JPanel palette = new JPanel(new GridLayout(7, 1));
         palette.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add 10-pixel padding
         palette.setOpaque(false); // Make the palette panel transparent
         JButton wallButton = new JButton("Wall");
@@ -130,7 +131,8 @@ public class LevelEditor extends JFrame {
                 } catch (FileNotFoundException ex) {
                     ex.printStackTrace();
                 }
-                System.out.println("Save button clicked");
+                UI start = new UI();
+                this.dispose(); 
             } else {
                 JOptionPane.showMessageDialog(this, "You must have at least 10 boxes and ALL 3 players swpawnpoints should be set to save the level.");
             }
@@ -270,7 +272,8 @@ public class LevelEditor extends JFrame {
                     ex.printStackTrace();
                 }
                 
-                System.out.println("Save button clicked");
+                UI start = new UI();
+                this.dispose(); 
             } else {
                 JOptionPane.showMessageDialog(this, "You must have at least 10 boxes and ALL 3 players swpawnpoints should be set to save the level.");
             }

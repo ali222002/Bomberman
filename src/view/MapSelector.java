@@ -33,17 +33,28 @@ public class MapSelector extends JFrame {
             str = str.replace(".txt", "");
             String str2 = str.replace("level", "");
             JButton mapButton = new JButton("map " + str2);
-            mapButton.addActionListener(e -> new LevelEditor(file.getPath()));
+            mapButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println("sljdahnkj");
+                LevelEditor start = new LevelEditor(file.getPath());
+                MapSelector.this.dispose(); 
+            }
+        });
+
             this.add(mapButton);
         }
        
         JButton exitButton = new JButton("Back");
-        exitButton.addActionListener(e -> new GameSettings());
-        
-        
+        exitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //System.out.println("sljdahnkj");
+                GameSettings start = new GameSettings();
+                MapSelector.this.dispose(); 
+            }
+        });
+
         // Add the buttons to the frame
         this.add(newMapButton);
-        this.add(modifyMapButton);
         this.add(exitButton);
         this.setVisible(true);
     }

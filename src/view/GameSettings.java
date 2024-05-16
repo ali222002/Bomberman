@@ -152,7 +152,7 @@ class ControlSettingsFrame extends JFrame {
         
         //Settings
         settingsButtonPanel = new JPanel();
-        settingsButtonPanel.setBounds(400, 500, 200, 100);
+        settingsButtonPanel.setBounds(400, 600, 200, 100);
         settingsButtonPanel.setBackground(new Color(27, 102, 49));
 
         settingsButton = new JButton("sound");
@@ -171,7 +171,7 @@ class ControlSettingsFrame extends JFrame {
         
        // level editor butrton
        levelEditorButtonPanel = new JPanel();
-       levelEditorButtonPanel.setBounds(400, 600, 200, 100);
+       levelEditorButtonPanel.setBounds(400, 500, 200, 100);
        levelEditorButtonPanel.setBackground(new Color(27, 102, 49));
 
        levelEditorButton = new JButton("level editor");
@@ -212,13 +212,13 @@ class ControlSettingsFrame extends JFrame {
         titleNamePanel.add(titleNameLabel);
         startButtonPanel.add(startButton);
         exitButtonPanel.add(exitButton);
-        settingsButtonPanel.add(settingsButton);
+        //settingsButtonPanel.add(settingsButton);
         levelEditorButtonPanel.add(levelEditorButton);
 
         con.add(titleNamePanel);
         con.add(startButtonPanel);
         con.add(exitButtonPanel);
-        con.add(settingsButtonPanel);
+        //con.add(settingsButtonPanel);
         con.add(levelEditorButtonPanel);
         
         
