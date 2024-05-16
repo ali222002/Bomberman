@@ -31,7 +31,7 @@ public class PlayerTest {
         leftFrames = new Image[] {new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB)};
         rightFrames = new Image[] {new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB)};
         
-        player = new Player(100, 100, 50, 50, upFrames, downFrames, leftFrames, rightFrames);
+        player = new Player(100, 100, 50, 50, upFrames, downFrames, leftFrames, rightFrames,"Player1");
     }
     
   @Test
