@@ -37,11 +37,13 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import org.json.JSONException;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 public class Engine extends JPanel {
-
+ 
     private int player_count;
     private int round_count;
     private int id_level;
@@ -160,7 +162,9 @@ public class Engine extends JPanel {
             generate_Monsters(_level);
         }
         int cc = 10;
-        for (int i = 1; i <= player_count; i++) {
+        boolean vv = true;
+        if(vv == false){
+            for (int i = 1; i <= player_count; i++) {
 
             Image playerImage = new ImageIcon("src/media/player" + i + ".png").getImage();
             playerObj = new ActiveObject(770, cc, 150, 100, playerImage);
@@ -191,13 +195,114 @@ public class Engine extends JPanel {
                 posX = 680;
                 posY = 680;
             }
-            str = String.valueOf(i);
             Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
                     playerFramesRight,str);
             players.add(_player);
             setControls(_player, up, down, left, right, bomb);
-        }
+            }
+        }else{
+            BufferedReader reader = new BufferedReader(new FileReader("src/levels/level" + id_level + ".txt"));
+            String line;
+            int row = 0;
+            int cellSize = 40; // Replace with your actual cell size
+            
+            while ((line = reader.readLine()) != null) {
+                for (int col = 0; col < line.length(); col++) {
+                    char ch = line.charAt(col);
+                    if (ch == '4'){ 
+                        
+                        Image playerImage = new ImageIcon("src/media/player" + 1 + ".png").getImage();
+                        playerObj = new ActiveObject(770, cc, 150, 100, playerImage);
+                        playersUI.add(playerObj);
+                        cc += 110;
+                        
+                        JSONObject playerControls = obj.getJSONObject("player1");
+                        String up = playerControls.getString("up");
+                        String down = playerControls.getString("down");
+                        String left = playerControls.getString("left");
+                        String right = playerControls.getString("right");
+                        String bomb = playerControls.getString("bomb");
 
+                        // Load player frames
+                        Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + 1));
+                        Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + 1));
+                        Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + 1));
+                        Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + 1));
+                        int posX = col * 40;
+                        int posY = row * 40;
+                        
+                        
+                        
+                        Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                                playerFramesRight,"1");
+                        players.add(_player);
+                        playersUI.add(playerObj);
+                        setControls(_player, up, down, left, right, bomb);
+                    }
+                    else if (ch == '5'){
+                        Image playerImage = new ImageIcon("src/media/player" + 2 + ".png").getImage();
+                        playerObj = new ActiveObject(770, cc, 150, 100, playerImage);
+                        playersUI.add(playerObj);
+                        cc += 110;
+                        
+                        JSONObject playerControls = obj.getJSONObject("player2");
+                        String up = playerControls.getString("up");
+                        String down = playerControls.getString("down");
+                        String left = playerControls.getString("left");
+                        String right = playerControls.getString("right");
+                        String bomb = playerControls.getString("bomb");
+
+                        // Load player frames
+                        Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + 2));
+                        Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + 2));
+                        Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + 2));
+                        Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + 2));
+                        int posX = col * 40;
+                        int posY = row * 40;
+                        
+                        
+                        
+                        Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                                playerFramesRight,"2");
+                        players.add(_player);
+                        setControls(_player, up, down, left, right, bomb);
+                        
+                    }
+                    else if (ch == '6' && player_count == 3) {
+                        Image playerImage = new ImageIcon("src/media/player" + 3 + ".png").getImage();
+                        playerObj = new ActiveObject(770, cc, 150, 100, playerImage);
+                        playersUI.add(playerObj);
+                        cc += 110;
+                        
+                        JSONObject playerControls = obj.getJSONObject("player3");
+                        String up = playerControls.getString("up");
+                        String down = playerControls.getString("down");
+                        String left = playerControls.getString("left");
+                        String right = playerControls.getString("right");
+                        String bomb = playerControls.getString("bomb");
+
+                        // Load player frames
+                        Image[] playerFramesUp = loadPlayerFrames("up", (char) ('0' + 3));
+                        Image[] playerFramesDown = loadPlayerFrames("down", (char) ('0' + 3));
+                        Image[] playerFramesLeft = loadPlayerFrames("left", (char) ('0' + 3));
+                        Image[] playerFramesRight = loadPlayerFrames("right", (char) ('0' + 3));
+                        int posX = col * 40;
+                        int posY = row * 40;
+                        
+                        
+                        
+                        Player _player = new Player(posX, posY, 35, 35, playerFramesUp, playerFramesDown, playerFramesLeft,
+                                playerFramesRight,"3");
+                        players.add(_player);
+                        setControls(_player, up, down, left, right, bomb);
+                    }
+                }
+                row++;
+            }
+            reader.close();
+        
+        }
+        
         // restart_game();
 
         // ANIMATION

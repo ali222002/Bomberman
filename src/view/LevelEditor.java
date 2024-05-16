@@ -12,9 +12,9 @@ public class LevelEditor extends JFrame {
     private JPanel grid;
     private String selectedElement = "Empty";
     
-    private Color player1Color = Color.RED;
+    private Color player1Color = Color.PINK;
     private Color player2Color = Color.BLUE;
-    private Color player3Color = Color.YELLOW;
+    private Color player3Color = Color.WHITE;
     private JPanel player1Cell;
     private JPanel player2Cell;
     private JPanel player3Cell;
@@ -105,7 +105,7 @@ public class LevelEditor extends JFrame {
         player3Button.addActionListener(e -> selectedElement = "Player3");
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
-            if (countBoxes() >= 10) {
+            if (countBoxes() >= 10 && didallplayersLockedin()) {
                 num = num + 1;
                 try (PrintWriter writer = new PrintWriter(new File("src/levels/level" + num + ".txt"))) {
                     for (int i = 0; i < grid.getComponentCount(); i++) {
@@ -114,16 +114,14 @@ public class LevelEditor extends JFrame {
                             writer.print('1');
                         } else if (cell.getBackground() == Color.GRAY) {
                             writer.print('2');
-                        } else {
-                            writer.print('3');
-                        }
-                        
-                        if (cell.getBackground() == player1Color) {
+                        }else if (cell.getBackground() == player1Color) {
                             writer.print('4');
                         } else if (cell.getBackground() == player2Color) {
                             writer.print('5');
                         } else if (cell.getBackground() == player3Color) {
                             writer.print('6');
+                        }else {
+                            writer.print('3');
                         }
                         if ((i + 1) % 19 == 0) { // End of a row
                             writer.println();
@@ -134,7 +132,7 @@ public class LevelEditor extends JFrame {
                 }
                 System.out.println("Save button clicked");
             } else {
-                JOptionPane.showMessageDialog(this, "You must have at least 10 boxes to save the level.");
+                JOptionPane.showMessageDialog(this, "You must have at least 10 boxes and ALL 3 players swpawnpoints should be set to save the level.");
             }
         });
         palette.add(wallButton);
@@ -179,6 +177,15 @@ public class LevelEditor extends JFrame {
                             break;
                         case '3':
                             cell.setBackground(Color.GREEN); // Ground
+                            break;
+                        case '4':
+                            cell.setBackground(Color.PINK); // Box
+                            break;
+                        case '5':
+                            cell.setBackground(Color.BLUE); // Ground
+                            break;
+                        case '6':
+                            cell.setBackground(Color.WHITE); // Ground
                             break;
                     }
                     if (!(i == 0 || i == 18 || j == 0 || j == 18)) { // Not in the first or last row or column
@@ -237,7 +244,7 @@ public class LevelEditor extends JFrame {
         player3Button.addActionListener(e -> selectedElement = "Player3");
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
-            if (countBoxes() >= 10) {
+            if (countBoxes() >= 10 && didallplayersLockedin()) {
                 try (PrintWriter writer = new PrintWriter(new File(mapFile))) {
                     for (int i = 0; i < grid.getComponentCount(); i++) {
                         JPanel cell = (JPanel) grid.getComponent(i);
@@ -245,16 +252,14 @@ public class LevelEditor extends JFrame {
                             writer.print('1');
                         } else if (cell.getBackground() == Color.GRAY) {
                             writer.print('2');
-                        } else {
-                            writer.print('3');
-                        }
-                        
-                        if (cell.getBackground() == player1Color) {
+                        }else if (cell.getBackground() == player1Color) {
                             writer.print('4');
                         } else if (cell.getBackground() == player2Color) {
                             writer.print('5');
                         } else if (cell.getBackground() == player3Color) {
                             writer.print('6');
+                        }else {
+                            writer.print('3');
                         }
                         
                         if ((i + 1) % 19 == 0) { // End of a row
@@ -264,9 +269,10 @@ public class LevelEditor extends JFrame {
                 } catch (FileNotFoundException ex) {
                     ex.printStackTrace();
                 }
+                
                 System.out.println("Save button clicked");
             } else {
-                JOptionPane.showMessageDialog(this, "You must have at least 10 boxes to save the level.");
+                JOptionPane.showMessageDialog(this, "You must have at least 10 boxes and ALL 3 players swpawnpoints should be set to save the level.");
             }
         });
         palette.add(wallButton);
@@ -294,7 +300,24 @@ public class LevelEditor extends JFrame {
         }
         return boxCount;
     }
-
+    
+    private boolean didallplayersLockedin() {
+        int boxCount = 0;
+        for (int i = 0; i < grid.getComponentCount(); i++) {
+            JPanel cell = (JPanel) grid.getComponent(i);
+            if (cell.getBackground() == Color.PINK){
+                boxCount++;
+            }
+            else if (cell.getBackground() == Color.BLUE){
+                boxCount++;
+            }
+            else if (cell.getBackground() == Color.WHITE){
+                boxCount++;
+            }
+        }
+        return boxCount == 3;
+    }
+    
     public static void main(String[] args) {
         // new LevelEditor("path_to_your_map_file.txt");
     }
