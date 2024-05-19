@@ -26,7 +26,3 @@ ___
 ![alt text](src/media/leveleditor.png "LEVEL EDITOR")
 ![alt text](src/media/gameplay.png "GAMEPLAY")
 
-___
-## Support
-For more details, check out the [Wiki page](https://szofttech.inf.elte.hu/software-technology-2024/group-1/lightning/-/wikis/Multiplayer-Bomberman). 
-
